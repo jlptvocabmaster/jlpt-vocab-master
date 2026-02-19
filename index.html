@@ -9,7 +9,7 @@
 <meta property="og:description" content="Learn Japanese the anime way. Quiz mode, flashcards, memory hooks — always free for N5 to N1.">
 <meta property="og:image" content="https://placehold.co/1200x630/1a1a2e/c0392b?text=%E6%97%A5%E6%9C%AC%E8%AA%9E+JLPT+Vocab+Master">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://yourdomain.com">
+<meta property="og:url" content="https://jlptvocabmaster.github.io/jlpt-vocab-master/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="🇯🇵 JLPT Vocabulary Master">
 <meta name="twitter:description" content="Learn Japanese the anime way. Free forever — quiz, flashcards, N5 to N1.">
@@ -84,11 +84,11 @@ body::after { content: ''; position: fixed; top: 30%; left: 50%; transform: tran
 .continue-bar-sub { font-size: 0.72rem; color: var(--stone); }
 .continue-btn { background: var(--gold); color: var(--ink); border: none; border-radius: 10px; padding: 9px 16px; font-family: 'DM Serif Display', serif; font-size: 0.9rem; cursor: pointer; white-space: nowrap; transition: transform .18s; flex-shrink: 0; }
 .continue-btn:hover { transform: translateY(-2px); }
-.wrapper { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 0 20px 110px; }
+.wrapper { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 0 20px 80px; }
 
 /* Support floating button */
 .support-float {
-  position: fixed; bottom: 62px; right: 20px; z-index: 50;
+  position: fixed; bottom: 24px; right: 20px; z-index: 50;
   background: var(--gold); color: var(--ink); border: none;
   border-radius: 99px; padding: 10px 18px;
   font-family: 'Noto Sans JP', sans-serif; font-size: 0.82rem; font-weight: 700;
@@ -361,30 +361,67 @@ body::after { content: ''; position: fixed; top: 30%; left: 50%; transform: tran
 .copy-link-btn:hover { border-color: var(--crimson); color: var(--crimson); }
 .copy-link-btn.copied { border-color: #27ae60; color: #27ae60; background: #eafaf1; }
 
-/* ── SOCIAL FOOTER BAR ── */
-.social-footer {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
-  background: #0f0f1a; border-top: 1px solid #1e2a3a;
-  display: flex; align-items: stretch; height: 50px;
+/* ── FLOATING SHARE BUTTON + POP MENU ── */
+.share-fab-wrap {
+  position: fixed; bottom: 24px; left: 20px; z-index: 50;
+  display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 10px;
 }
-.sf-label {
-  display: flex; align-items: center; padding: 0 12px;
-  font-size: 0.52rem; color: #475569; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
-  border-right: 1px solid #1e2a3a; white-space: nowrap; flex-shrink: 0;
+.share-fab {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--crimson); color: white; border: none;
+  font-size: 1.1rem; cursor: pointer;
+  box-shadow: 0 4px 18px rgba(192,57,43,0.45);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .2s, box-shadow .2s;
+  flex-shrink: 0;
 }
-.sf-btn {
-  flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
-  border: none; background: transparent; cursor: pointer;
-  font-size: 0.65rem; font-weight: 700; color: #64748b;
-  border-right: 1px solid #1e2a3a; transition: background .15s, color .15s;
-  text-decoration: none;
+.share-fab:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(192,57,43,0.55); }
+.share-fab.open { background: var(--ink); transform: rotate(45deg); }
+
+.share-fan {
+  display: flex; flex-direction: column-reverse; gap: 8px;
+  overflow: hidden; max-height: 0;
+  transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease;
+  opacity: 0; pointer-events: none;
 }
-.sf-btn:last-child { border-right: none; }
-.sf-tw:hover  { background: rgba(255,255,255,0.06); color: #e2e8f0; }
-.sf-wa:hover  { background: rgba(37,211,102,0.12); color: #25d366; }
-.sf-fb:hover  { background: rgba(24,119,242,0.12); color: #60a5fa; }
-.sf-rd:hover  { background: rgba(255,69,0,0.12); color: #ff6b35; }
-.sf-li:hover  { background: rgba(10,102,194,0.12); color: #60a5fa; }
+.share-fan.open {
+  max-height: 320px; opacity: 1; pointer-events: auto;
+}
+.sfan-btn {
+  width: 40px; height: 40px; border-radius: 50%; border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+  transition: transform .18s, box-shadow .18s;
+  transform: scale(0); opacity: 0;
+}
+.share-fan.open .sfan-btn {
+  transform: scale(1); opacity: 1;
+}
+/* stagger each icon */
+.share-fan.open .sfan-btn:nth-child(1) { transition: transform .2s .04s, opacity .2s .04s, box-shadow .18s; }
+.share-fan.open .sfan-btn:nth-child(2) { transition: transform .2s .09s, opacity .2s .09s, box-shadow .18s; }
+.share-fan.open .sfan-btn:nth-child(3) { transition: transform .2s .14s, opacity .2s .14s, box-shadow .18s; }
+.share-fan.open .sfan-btn:nth-child(4) { transition: transform .2s .19s, opacity .2s .19s, box-shadow .18s; }
+.share-fan.open .sfan-btn:nth-child(5) { transition: transform .2s .24s, opacity .2s .24s, box-shadow .18s; }
+.sfan-btn:hover { transform: scale(1.15) !important; box-shadow: 0 5px 18px rgba(0,0,0,0.3); }
+.sfan-btn svg { width: 18px; height: 18px; }
+.sfan-tw  { background: #000; color: white; }
+.sfan-wa  { background: #25d366; color: white; }
+.sfan-fb  { background: #1877f2; color: white; }
+.sfan-rd  { background: #ff4500; color: white; }
+.sfan-li  { background: #0a66c2; color: white; }
+
+/* tooltip labels on hover */
+.sfan-btn { position: relative; }
+.sfan-btn::after {
+  content: attr(data-tip);
+  position: absolute; left: 52px; top: 50%; transform: translateY(-50%);
+  background: var(--ink); color: white; border-radius: 8px;
+  padding: 4px 10px; font-size: 0.7rem; font-weight: 700;
+  white-space: nowrap; pointer-events: none;
+  opacity: 0; transition: opacity .15s;
+}
+.sfan-btn:hover::after { opacity: 1; }
 </style>
 </head>
 <body>
@@ -572,30 +609,29 @@ body::after { content: ''; position: fixed; top: 30%; left: 50%; transform: tran
 
 </div><!-- /wrapper -->
 
-<!-- ── SOCIAL FOOTER BAR ── -->
-<nav class="social-footer" aria-label="Share on social media">
-  <span class="sf-label">Share ✦</span>
-  <button class="sf-btn sf-tw" onclick="shareTo('twitter')" title="Share on X / Twitter">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-    X / Twitter
+<!-- ── FLOATING SHARE BUTTON ── -->
+<div class="share-fab-wrap" id="shareFabWrap">
+  <button class="share-fab" id="shareFab" onclick="toggleShareFan()" title="Share this app" aria-label="Share">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
   </button>
-  <button class="sf-btn sf-wa" onclick="shareTo('whatsapp')" title="Share on WhatsApp">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    WhatsApp
-  </button>
-  <button class="sf-btn sf-fb" onclick="shareTo('facebook')" title="Share on Facebook">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-    Facebook
-  </button>
-  <button class="sf-btn sf-rd" onclick="shareTo('reddit')" title="Share on Reddit">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
-    Reddit
-  </button>
-  <button class="sf-btn sf-li" onclick="shareTo('linkedin')" title="Share on LinkedIn">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-    LinkedIn
-  </button>
-</nav>
+  <div class="share-fan" id="shareFan">
+    <button class="sfan-btn sfan-li" data-tip="LinkedIn" onclick="shareTo('linkedin')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    </button>
+    <button class="sfan-btn sfan-rd" data-tip="Reddit" onclick="shareTo('reddit')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
+    </button>
+    <button class="sfan-btn sfan-fb" data-tip="Facebook" onclick="shareTo('facebook')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    </button>
+    <button class="sfan-btn sfan-wa" data-tip="WhatsApp" onclick="shareTo('whatsapp')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </button>
+    <button class="sfan-btn sfan-tw" data-tip="X / Twitter" onclick="shareTo('twitter')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </button>
+  </div>
+</div>
 
 <!-- ── ORIGIN PANEL ── -->
 <div class="panel-overlay" id="originOverlay" onclick="closeOrigin(event)">
@@ -1617,8 +1653,28 @@ function continueSession() {
 // ─────────────────────────────────────────────
 // SHARE SYSTEM
 // ─────────────────────────────────────────────
-const SITE_URL = window.location.href.split('?')[0];
+const SITE_URL = 'https://jlptvocabmaster.github.io/jlpt-vocab-master/';
 let _shareText = '';
+let _fanOpen = false;
+
+function toggleShareFan() {
+  _fanOpen = !_fanOpen;
+  const fan = document.getElementById('shareFan');
+  const fab = document.getElementById('shareFab');
+  fan.classList.toggle('open', _fanOpen);
+  fab.classList.toggle('open', _fanOpen);
+  // Set default share text for the fan buttons
+  _shareText = `🇯🇵 Learn Japanese the anime way — JLPT Vocabulary Master covers N5 to N1 with kanji origin stories, memory hooks, and anime wisdom! Try it: ${SITE_URL}`;
+}
+
+// Close fan if clicking elsewhere
+document.addEventListener('click', (e) => {
+  if (_fanOpen && !document.getElementById('shareFabWrap').contains(e.target)) {
+    _fanOpen = false;
+    document.getElementById('shareFan').classList.remove('open');
+    document.getElementById('shareFab').classList.remove('open');
+  }
+});
 
 function openShareModal(text, icon = '📤', title = 'Share') {
   _shareText = text;
