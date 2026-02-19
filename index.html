@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本語 JLPT Vocab Master</title>
+<meta name="description" content="Learn Japanese JLPT vocabulary the anime way. Free forever — quiz, flashcards, and memory hooks for N5 to N1.">
+<meta property="og:title" content="🇯🇵 JLPT Vocabulary Master">
+<meta property="og:description" content="Learn Japanese the anime way. Quiz mode, flashcards, memory hooks — always free for N5 to N1.">
+<meta property="og:image" content="https://placehold.co/1200x630/1a1a2e/c0392b?text=%E6%97%A5%E6%9C%AC%E8%AA%9E+JLPT+Vocab+Master">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://yourdomain.com">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="🇯🇵 JLPT Vocabulary Master">
+<meta name="twitter:description" content="Learn Japanese the anime way. Free forever — quiz, flashcards, N5 to N1.">
+<meta name="twitter:image" content="https://placehold.co/1200x630/1a1a2e/c0392b?text=%E6%97%A5%E6%9C%AC%E8%AA%9E+JLPT+Vocab+Master">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root {
+  --crimson: #c0392b;
+  --crimson-dk: #922b21;
+  --crimson-lt: #fadbd8;
+  --gold: #d4ac0d;
+  --gold-lt: #fef9e7;
+  --ink: #1a1a2e;
+  --paper: #fdf6ec;
+  --stone: #7f8c8d;
+  --border: #e8ddd0;
+  --white: #ffffff;
+  --n5: #27ae60; --n4: #2980b9; --n3: #8e44ad; --n2: #e67e22; --n1: #c0392b;
+  --radius: 16px;
+  --shadow: 0 8px 40px rgba(0,0,0,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans JP', sans-serif; background: var(--paper); min-height: 100vh; color: var(--ink); overflow-x: hidden; }
+
+/* Washi texture */
+body::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); opacity: 0.5; }
+
+/* Floating kanji canvas */
+#kanjiCanvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.045; }
+
+/* Radial glow centre */
+body::after { content: ''; position: fixed; top: 30%; left: 50%; transform: translate(-50%,-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(192,57,43,0.07) 0%, transparent 70%); pointer-events: none; z-index: 0; border-radius: 50%; }
+
+.stripe { position: fixed; top: 0; left: 0; bottom: 0; width: 6px; background: linear-gradient(180deg, var(--crimson), #e74c3c, var(--gold), var(--crimson)); z-index: 10; }
+
+/* Welcome back banner */
+.welcome-back {
+  display: none;
+  background: linear-gradient(135deg, var(--ink), #2c3e50);
+  border-radius: var(--radius); padding: 16px 18px;
+  margin-bottom: 20px; position: relative; overflow: hidden;
+  animation: fadeUp .5s ease both;
+}
+.welcome-back.show { display: flex; align-items: center; gap: 14px; }
+.welcome-back::before { content: ''; position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: radial-gradient(circle, rgba(212,172,13,0.3), transparent); border-radius: 50%; }
+.wb-emoji { font-size: 2rem; flex-shrink: 0; }
+.wb-text { flex: 1; }
+.wb-title { font-family: 'DM Serif Display', serif; font-size: 1rem; color: var(--gold); margin-bottom: 3px; }
+.wb-sub { font-size: 0.75rem; color: #94a3b8; line-height: 1.4; }
+.wb-streak { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--gold); flex-shrink: 0; }
+
+/* Level stat rows inside cards */
+.level-stats { margin-top: 8px; width: 100%; }
+.level-stat-bar { height: 4px; background: #e8ddd0; border-radius: 99px; overflow: hidden; margin-top: 4px; margin-bottom: 3px; }
+.level-stat-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+.level-card[data-level="N5"] .level-stat-fill { background: var(--n5); }
+.level-card[data-level="N4"] .level-stat-fill { background: var(--n4); }
+.level-card[data-level="N3"] .level-stat-fill { background: var(--n3); }
+.level-card[data-level="N2"] .level-stat-fill { background: var(--n2); }
+.level-card[data-level="N1"] .level-stat-fill { background: var(--n1); }
+.level-stat-label { font-size: 0.6rem; color: var(--stone); display: flex; justify-content: space-between; }
+
+/* Continue session banner */
+.continue-bar {
+  display: none; background: var(--gold-lt); border: 1.5px solid var(--gold);
+  border-radius: 14px; padding: 14px 16px; margin-bottom: 20px;
+  animation: fadeUp .4s ease both;
+}
+.continue-bar.show { display: flex; align-items: center; gap: 12px; }
+.continue-bar-text { flex: 1; }
+.continue-bar-title { font-weight: 700; font-size: 0.88rem; color: var(--ink); margin-bottom: 2px; }
+.continue-bar-sub { font-size: 0.72rem; color: var(--stone); }
+.continue-btn { background: var(--gold); color: var(--ink); border: none; border-radius: 10px; padding: 9px 16px; font-family: 'DM Serif Display', serif; font-size: 0.9rem; cursor: pointer; white-space: nowrap; transition: transform .18s; flex-shrink: 0; }
+.continue-btn:hover { transform: translateY(-2px); }
+.wrapper { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 0 20px 110px; }
+
+/* Support floating button */
+.support-float {
+  position: fixed; bottom: 62px; right: 20px; z-index: 50;
+  background: var(--gold); color: var(--ink); border: none;
+  border-radius: 99px; padding: 10px 18px;
+  font-family: 'Noto Sans JP', sans-serif; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; box-shadow: 0 4px 20px rgba(212,172,13,0.45);
+  transition: transform .2s, box-shadow .2s;
+  text-decoration: none; display: flex; align-items: center; gap: 6px;
+}
+.support-float:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(212,172,13,0.55); }
+
+/* SCREENS */
+.screen { display: none; }
+.screen.active { display: block; animation: fadeUp .4s ease both; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+
+/* ── HOME ── */
+.home-header { text-align: center; padding: 40px 0 24px; border-bottom: 2px solid var(--border); margin-bottom: 28px; }
+.jp-title { font-family: 'Noto Serif JP', serif; font-size: clamp(2rem,8vw,3.4rem); color: var(--crimson); letter-spacing: 6px; line-height: 1.2; margin-bottom: 4px; }
+.en-title { font-family: 'DM Serif Display', serif; font-size: clamp(0.9rem,3vw,1.15rem); color: var(--stone); letter-spacing: 3px; text-transform: uppercase; }
+
+/* Anime quote card */
+.quote-card {
+  background: var(--ink); border-radius: var(--radius); padding: 20px 22px;
+  margin-bottom: 28px; position: relative; overflow: hidden;
+}
+.quote-card::before { content: '「'; position: absolute; top: -10px; left: 10px; font-family: 'Noto Serif JP', serif; font-size: 5rem; color: var(--crimson); opacity: 0.2; line-height: 1; pointer-events: none; }
+.quote-jp { font-family: 'Noto Serif JP', serif; font-size: 1rem; color: #e2e8f0; line-height: 1.7; margin-bottom: 6px; }
+.quote-en { font-size: 0.78rem; color: #94a3b8; font-style: italic; margin-bottom: 8px; line-height: 1.5; }
+.quote-source { font-size: 0.68rem; color: var(--gold); font-weight: 700; letter-spacing: 1px; }
+.quote-tag { font-size: 0.62rem; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+
+.section-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--stone); margin-bottom: 12px; padding-left: 2px; }
+
+/* Level grid */
+.level-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-bottom: 28px; }
+.level-card { background: var(--white); border: 2px solid var(--border); border-radius: var(--radius); padding: 16px 14px; cursor: pointer; text-align: center; transition: all .2s ease; position: relative; overflow: hidden; }
+.level-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+.level-card[data-level="N5"]::before{background:var(--n5)}.level-card[data-level="N4"]::before{background:var(--n4)}.level-card[data-level="N3"]::before{background:var(--n3)}.level-card[data-level="N2"]::before{background:var(--n2)}.level-card[data-level="N1"]::before{background:var(--n1)}
+.level-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.level-card.selected { border-width: 2.5px; }
+.level-card[data-level="N5"].selected{border-color:var(--n5);background:#eafaf1}.level-card[data-level="N4"].selected{border-color:var(--n4);background:#eaf4fb}.level-card[data-level="N3"].selected{border-color:var(--n3);background:#f5eef8}.level-card[data-level="N2"].selected{border-color:var(--n2);background:#fef5e7}.level-card[data-level="N1"].selected{border-color:var(--n1);background:#fdedec}
+.level-kanji { font-family: 'Noto Serif JP', serif; font-size: 1.7rem; font-weight: 700; margin-bottom: 2px; }
+.level-card[data-level="N5"] .level-kanji{color:var(--n5)}.level-card[data-level="N4"] .level-kanji{color:var(--n4)}.level-card[data-level="N3"] .level-kanji{color:var(--n3)}.level-card[data-level="N2"] .level-kanji{color:var(--n2)}.level-card[data-level="N1"] .level-kanji{color:var(--n1)}
+.level-rank { font-size: 0.68rem; font-weight: 700; color: var(--stone); margin-bottom: 3px; letter-spacing: 1px; }
+.level-desc { font-size: 0.7rem; color: var(--stone); }
+.level-free { font-size: 0.62rem; color: var(--n5); font-weight: 700; margin-top: 4px; }
+
+/* Mode pills */
+.mode-row { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.mode-pill { padding: 9px 14px; background: var(--white); border: 2px solid var(--border); border-radius: 99px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all .18s; color: var(--ink); }
+.mode-pill:hover { border-color: var(--crimson); color: var(--crimson); }
+.mode-pill.sel { background: var(--crimson); color: white; border-color: var(--crimson); }
+
+.start-btn { width: 100%; padding: 17px; background: var(--crimson); border: none; border-radius: var(--radius); font-family: 'DM Serif Display', serif; font-size: 1.35rem; letter-spacing: 2px; color: white; cursor: pointer; box-shadow: 0 4px 20px rgba(192,57,43,.35); transition: transform .2s, box-shadow .2s; }
+.start-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(192,57,43,.45); }
+
+/* ── GAME HEADER ── */
+.game-top { display: flex; align-items: center; justify-content: space-between; padding: 18px 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 18px; position: sticky; top: 0; background: var(--paper); z-index: 5; }
+.gt-left { display: flex; flex-direction: column; gap: 2px; }
+.gt-level { font-family: 'Noto Serif JP', serif; font-size: 1.1rem; font-weight: 700; }
+.gt-rank { font-size: 0.68rem; color: var(--stone); font-weight: 700; letter-spacing: 1px; }
+.gt-right { text-align: right; }
+.gt-score { font-size: 0.88rem; font-weight: 700; color: var(--gold); }
+.gt-lives { font-size: 1rem; letter-spacing: 2px; }
+.prog-bar-wrap { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 20px; }
+.prog-bar-fill { height: 100%; border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+
+/* ── QUIZ CARD ── */
+.q-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 20px; padding: 26px 22px 20px; box-shadow: 0 4px 24px rgba(0,0,0,.06); }
+.q-tag { display: inline-block; background: var(--crimson-lt); color: var(--crimson); font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; border-radius: 6px; padding: 3px 9px; margin-bottom: 14px; }
+.word-header { position: relative; text-align: center; margin-bottom: 18px; }
+.kanji-display { font-family: 'Noto Serif JP', serif; font-size: clamp(2rem,9vw,3.2rem); font-weight: 700; color: var(--ink); line-height: 1.2; margin-bottom: 4px; }
+.furigana-display { font-size: 0.88rem; color: var(--stone); margin-bottom: 3px; }
+.romaji-display { font-size: 0.78rem; color: #aaa; font-style: italic; }
+.origin-btn {
+  position: absolute; top: 0; right: 0;
+  background: none; border: 2px solid var(--border);
+  border-radius: 10px; padding: 6px 10px; cursor: pointer;
+  font-size: 1rem; color: var(--stone);
+  transition: all .18s; line-height: 1;
+}
+.origin-btn:hover { border-color: var(--gold); background: var(--gold-lt); transform: scale(1.1); }
+
+.opts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.opt-btn { background: #f8f6f2; border: 2px solid var(--border); border-radius: 12px; padding: 12px 10px; font-family: 'Noto Sans JP', sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--ink); cursor: pointer; text-align: center; line-height: 1.4; transition: all .16s ease; }
+.opt-btn:hover:not(:disabled) { border-color: var(--crimson); background: var(--crimson-lt); transform: translateY(-2px); }
+.opt-btn.correct { border-color: #27ae60; background: #eafaf1; color: #1e8449; animation: pulse .35s ease; }
+.opt-btn.wrong { border-color: var(--crimson); background: var(--crimson-lt); color: var(--crimson-dk); animation: jolt .3s ease; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+@keyframes jolt { 0%,100%{transform:translateX(0)} 30%{transform:translateX(-6px)} 70%{transform:translateX(6px)} }
+
+.fill-wrap { display: flex; flex-direction: column; gap: 9px; }
+.fill-inp { width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 12px; font-family: 'Noto Sans JP', sans-serif; font-size: 1rem; font-weight: 600; color: var(--ink); background: #f8f6f2; outline: none; transition: border-color .2s; }
+.fill-inp:focus { border-color: var(--crimson); background: white; }
+.fill-inp.correct { border-color: #27ae60; background: #eafaf1; }
+.fill-inp.wrong { border-color: var(--crimson); background: var(--crimson-lt); }
+.fill-sub { padding: 12px; background: var(--crimson); color: white; border: none; border-radius: 12px; font-family: 'DM Serif Display', serif; font-size: 1.05rem; letter-spacing: 1px; cursor: pointer; transition: transform .18s; }
+.fill-sub:hover { transform: translateY(-2px); }
+
+.flashcard-scene { perspective: 1000px; width: 100%; cursor: pointer; margin-bottom: 12px; }
+.flashcard { width: 100%; min-height: 180px; position: relative; transform-style: preserve-3d; transition: transform .6s cubic-bezier(.4,0,.2,1); border-radius: 20px; }
+.flashcard.flipped { transform: rotateY(180deg); }
+.card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 26px 22px; border: 1.5px solid var(--border); background: var(--white); box-shadow: 0 4px 24px rgba(0,0,0,.06); }
+.card-back { transform: rotateY(180deg); background: var(--ink); border-color: var(--ink); color: white; }
+.flip-hint { font-size: 0.68rem; color: var(--stone); letter-spacing: 1px; margin-top: 10px; }
+.flashcard-btns { display: flex; gap: 10px; margin-top: 6px; }
+.fc-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-family: 'DM Serif Display', serif; font-size: 0.9rem; cursor: pointer; transition: transform .18s; }
+.fc-btn:hover { transform: translateY(-2px); }
+.fc-got { background: #eafaf1; color: #1e8449; border: 2px solid #27ae60; }
+.fc-miss { background: var(--crimson-lt); color: var(--crimson); border: 2px solid var(--crimson); }
+
+/* Anime sensei wrong answer quote */
+.sensei-quote { margin-top: 10px; background: var(--ink); border-radius: 12px; padding: 12px 14px; display: none; }
+.sensei-quote.show { display: block; animation: fadeUp .3s ease; }
+.sensei-text { font-size: 0.78rem; color: #94a3b8; font-style: italic; line-height: 1.5; }
+.sensei-src { font-size: 0.65rem; color: var(--gold); margin-top: 4px; font-weight: 700; }
+
+.feedback { margin-top: 12px; padding: 11px 14px; border-radius: 12px; font-weight: 600; font-size: 0.86rem; display: none; line-height: 1.5; gap: 6px; align-items: flex-start; }
+.feedback.show { display: flex; animation: fadeUp .3s ease; }
+.feedback.good { background: #eafaf1; color: #1e8449; }
+.feedback.bad { background: var(--crimson-lt); color: var(--crimson-dk); }
+.next-btn { width: 100%; margin-top: 10px; padding: 13px; background: var(--ink); border: none; border-radius: 12px; color: white; font-family: 'DM Serif Display', serif; font-size: 1.05rem; letter-spacing: 1px; cursor: pointer; display: none; transition: background .2s, transform .2s; }
+.next-btn:hover { background: var(--crimson); transform: translateY(-2px); }
+.next-btn.show { display: block; animation: fadeUp .3s .1s both; }
+
+/* ── ORIGIN PANEL ── */
+.panel-overlay { display: none; position: fixed; inset: 0; background: rgba(26,26,46,0.65); backdrop-filter: blur(4px); z-index: 200; align-items: flex-end; justify-content: center; padding: 0; }
+.panel-overlay.show { display: flex; animation: fadeUp .3s ease; }
+.origin-panel {
+  background: var(--white); border-radius: 24px 24px 0 0; width: 100%; max-width: 680px;
+  padding: 28px 24px 40px; max-height: 85vh; overflow-y: auto;
+  animation: slideUp .35s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.panel-handle { width: 40px; height: 4px; background: var(--border); border-radius: 99px; margin: 0 auto 20px; }
+.panel-word { font-family: 'Noto Serif JP', serif; font-size: 2rem; font-weight: 700; color: var(--crimson); text-align: center; margin-bottom: 4px; }
+.panel-reading { font-size: 0.85rem; color: var(--stone); text-align: center; margin-bottom: 20px; }
+.panel-close { position: absolute; top: 16px; right: 20px; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--stone); }
+.origin-section { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+.origin-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.origin-section-title { font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--crimson); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.origin-section-body { font-size: 0.88rem; color: var(--ink); line-height: 1.7; }
+.origin-section-body strong { color: var(--crimson); }
+.radical-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.radical-pill { background: #f8f6f2; border: 1.5px solid var(--border); border-radius: 10px; padding: 6px 12px; font-size: 0.82rem; }
+.radical-pill .rp-kanji { font-family: 'Noto Serif JP', serif; font-size: 1.1rem; color: var(--crimson); display: block; text-align: center; }
+.radical-pill .rp-mean { font-size: 0.65rem; color: var(--stone); display: block; text-align: center; margin-top: 2px; }
+.related-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.related-chip { background: var(--crimson-lt); border-radius: 8px; padding: 5px 10px; font-size: 0.82rem; color: var(--crimson-dk); font-family: 'Noto Serif JP', serif; }
+
+/* ── MODALS ── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,26,46,0.72); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.show { display: flex; animation: fadeUp .3s ease; }
+.modal-box { background: var(--white); border-radius: 24px; padding: 34px 26px; max-width: 420px; width: 100%; text-align: center; position: relative; box-shadow: 0 24px 80px rgba(0,0,0,.25); }
+.modal-icon { font-size: 3rem; margin-bottom: 10px; }
+.modal-title { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--ink); margin-bottom: 8px; }
+.modal-sub { font-size: 0.86rem; color: var(--stone); margin-bottom: 22px; line-height: 1.6; }
+.modal-btn { width: 100%; padding: 14px; background: var(--crimson); border: none; border-radius: 12px; color: white; font-family: 'DM Serif Display', serif; font-size: 1.1rem; cursor: pointer; transition: transform .18s; margin-bottom: 10px; display: block; text-decoration: none; }
+.modal-btn:hover { transform: translateY(-2px); }
+.modal-btn-gold { background: var(--gold); color: var(--ink); }
+.modal-dismiss { font-size: 0.78rem; color: var(--stone); cursor: pointer; text-decoration: underline; display: block; }
+.modal-dismiss:hover { color: var(--crimson); }
+
+/* Email form */
+.email-form { display: flex; flex-direction: column; gap: 9px; margin-bottom: 14px; }
+.email-inp { width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 12px; font-family: 'Noto Sans JP', sans-serif; font-size: 0.95rem; color: var(--ink); outline: none; transition: border-color .2s; }
+.email-inp:focus { border-color: var(--crimson); }
+
+/* ── SCORE ── */
+.score-wrap { background: var(--white); border-radius: 20px; padding: 34px 22px; text-align: center; box-shadow: var(--shadow); margin-top: 20px; }
+.score-jp { font-family: 'Noto Serif JP', serif; font-size: 2.4rem; color: var(--crimson); margin-bottom: 4px; }
+.score-en { font-family: 'DM Serif Display', serif; font-size: 1.45rem; color: var(--ink); margin-bottom: 8px; }
+.score-num { font-family: 'DM Serif Display', serif; font-size: 3rem; color: var(--crimson); line-height: 1; }
+.score-denom { font-size: 1rem; color: var(--stone); margin-bottom: 4px; }
+.score-sub { font-size: 0.86rem; color: var(--stone); margin-bottom: 20px; }
+.dots-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin-bottom: 20px; }
+.dot { width: 23px; height: 23px; border-radius: 50%; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; }
+.dot.hit { background: #eafaf1; } .dot.miss { background: var(--crimson-lt); }
+.score-actions { display: flex; gap: 10px; }
+.sc-btn { flex: 1; padding: 13px; border-radius: 12px; border: none; font-family: 'DM Serif Display', serif; font-size: 0.95rem; letter-spacing: 1px; cursor: pointer; transition: transform .18s; }
+.sc-btn:hover { transform: translateY(-2px); }
+.sc-home { background: #f1f5f9; color: var(--ink); }
+.sc-again { background: var(--crimson); color: white; }
+
+/* Score anime quote */
+.score-quote { background: var(--ink); border-radius: 14px; padding: 16px 18px; margin-bottom: 20px; text-align: left; }
+.sq-label { font-size: 0.6rem; color: var(--gold); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+.sq-jp { font-family: 'Noto Serif JP', serif; font-size: 0.9rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 4px; }
+.sq-en { font-size: 0.75rem; color: #94a3b8; font-style: italic; margin-bottom: 4px; }
+.sq-src { font-size: 0.62rem; color: var(--gold); font-weight: 700; }
+
+/* ── XP & STREAK HUD ── */
+.xp-hud {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--ink); border-radius: 12px; padding: 8px 14px;
+  margin-bottom: 14px; position: sticky; top: 62px; z-index: 4;
+}
+.xp-bar-wrap { flex: 1; }
+.xp-bar-label { display: flex; justify-content: space-between; font-size: 0.62rem; color: #94a3b8; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
+.xp-bar-track { height: 5px; background: #2c3e50; border-radius: 99px; overflow: hidden; }
+.xp-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--gold), #f39c12); transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+.xp-streak { font-size: 0.9rem; font-weight: 700; color: var(--gold); white-space: nowrap; flex-shrink: 0; }
+.xp-rank-badge { font-size: 0.7rem; font-weight: 700; color: var(--gold); flex-shrink: 0; letter-spacing: 1px; }
+
+/* XP pop float animation */
+.xp-pop {
+  position: fixed; pointer-events: none; z-index: 999;
+  font-family: 'DM Serif Display', serif; font-size: 1.1rem;
+  font-weight: 700; color: var(--gold);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  animation: xpFloat 1.2s ease forwards;
+}
+@keyframes xpFloat {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  60%  { opacity: 1; transform: translateY(-40px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-70px) scale(0.9); }
+}
+
+/* Level-up toast */
+.levelup-toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--gold), #f39c12);
+  color: var(--ink); border-radius: 99px; padding: 10px 22px;
+  font-family: 'DM Serif Display', serif; font-size: 1rem; font-weight: 700;
+  box-shadow: 0 8px 32px rgba(212,172,13,0.5); z-index: 1000;
+  animation: toastIn .4s ease, toastOut .4s ease 2.2s forwards;
+  white-space: nowrap;
+}
+@keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(-20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+@keyframes toastOut { to { opacity:0; transform:translateX(-50%) translateY(-20px); } }
+
+/* Score XP summary */
+.score-xp-summary { background: linear-gradient(135deg, var(--ink), #2c3e50); border-radius: 14px; padding: 16px 18px; margin-bottom: 18px; display: flex; align-items: center; gap: 14px; }
+.sxp-icon { font-size: 2rem; flex-shrink: 0; }
+.sxp-text { flex: 1; }
+.sxp-title { font-family: 'DM Serif Display', serif; font-size: 1rem; color: var(--gold); margin-bottom: 2px; }
+.sxp-sub { font-size: 0.75rem; color: #94a3b8; }
+.sxp-total { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--gold); flex-shrink: 0; }
+.share-app-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 11px; margin-bottom: 24px;
+  background: var(--white); border: 2px dashed var(--border); border-radius: var(--radius);
+  font-family: 'Noto Sans JP', sans-serif; font-size: 0.82rem; font-weight: 700;
+  color: var(--stone); cursor: pointer; transition: all .2s;
+}
+.share-app-btn:hover { border-color: var(--crimson); color: var(--crimson); background: var(--crimson-lt); }
+
+.sc-share { background: #f0fdf4; color: #166534; border: 2px solid #86efac; flex: 1; }
+
+.share-word-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: none; border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 5px 10px; cursor: pointer;
+  font-size: 0.72rem; font-weight: 700; color: var(--stone);
+  transition: all .18s; margin-top: 10px;
+}
+.share-word-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-lt); }
+
+/* Share modal */
+.share-modal-box { background: var(--white); border-radius: 24px; padding: 28px 22px; max-width: 380px; width: 100%; text-align: center; position: relative; box-shadow: 0 24px 80px rgba(0,0,0,.25); }
+.share-title { font-family: 'DM Serif Display', serif; font-size: 1.25rem; color: var(--ink); margin-bottom: 6px; }
+.share-text-preview { background: #f8f6f2; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.82rem; color: var(--stone); margin-bottom: 16px; line-height: 1.6; text-align: left; }
+.share-socials { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 12px; }
+.share-soc-btn { padding: 11px 8px; border: none; border-radius: 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: transform .16s, opacity .16s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.share-soc-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+.soc-twitter { background: #000; color: white; }
+.soc-whatsapp { background: #25d366; color: white; }
+.soc-facebook { background: #1877f2; color: white; }
+.soc-linkedin { background: #0a66c2; color: white; }
+.copy-link-btn { width: 100%; padding: 11px; background: #f8f6f2; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Noto Sans JP', sans-serif; font-size: 0.82rem; font-weight: 700; color: var(--stone); cursor: pointer; transition: all .18s; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.copy-link-btn:hover { border-color: var(--crimson); color: var(--crimson); }
+.copy-link-btn.copied { border-color: #27ae60; color: #27ae60; background: #eafaf1; }
+
+/* ── SOCIAL FOOTER BAR ── */
+.social-footer {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+  background: #0f0f1a; border-top: 1px solid #1e2a3a;
+  display: flex; align-items: stretch; height: 50px;
+}
+.sf-label {
+  display: flex; align-items: center; padding: 0 12px;
+  font-size: 0.52rem; color: #475569; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  border-right: 1px solid #1e2a3a; white-space: nowrap; flex-shrink: 0;
+}
+.sf-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+  border: none; background: transparent; cursor: pointer;
+  font-size: 0.65rem; font-weight: 700; color: #64748b;
+  border-right: 1px solid #1e2a3a; transition: background .15s, color .15s;
+  text-decoration: none;
+}
+.sf-btn:last-child { border-right: none; }
+.sf-tw:hover  { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+.sf-wa:hover  { background: rgba(37,211,102,0.12); color: #25d366; }
+.sf-fb:hover  { background: rgba(24,119,242,0.12); color: #60a5fa; }
+.sf-rd:hover  { background: rgba(255,69,0,0.12); color: #ff6b35; }
+.sf-li:hover  { background: rgba(10,102,194,0.12); color: #60a5fa; }
+</style>
+</head>
+<body>
+<div class="stripe"></div>
+<canvas id="kanjiCanvas"></canvas>
+
+<!-- Floating support button -->
+<a id="supportBtn" href="https://4655550918506.gumroad.com/coffee" target="_blank" class="support-float">
+  ⭐ Say arigatou — ₹99
+</a>
+
+<div class="wrapper">
+
+<!-- ── HOME ── -->
+<div class="screen active" id="homeScreen">
+  <div class="home-header">
+    <div class="jp-title">日本語 単語</div>
+    <div class="en-title">JLPT Vocabulary Master · Always Free</div>
+  </div>
+
+  <!-- Welcome back banner -->
+  <div class="welcome-back" id="welcomeBack">
+    <div class="wb-emoji">👋</div>
+    <div class="wb-text">
+      <div class="wb-title" id="wbTitle">Welcome back, Sensei!</div>
+      <div class="wb-sub" id="wbSub"></div>
+    </div>
+    <div class="wb-streak" id="wbStreak"></div>
+  </div>
+
+  <!-- Continue session bar -->
+  <div class="continue-bar" id="continueBar">
+    <div class="continue-bar-text">
+      <div class="continue-bar-title" id="cbTitle">📚 Continue where you left off</div>
+      <div class="continue-bar-sub" id="cbSub"></div>
+    </div>
+    <button class="continue-btn" onclick="continueSession()">Resume →</button>
+  </div>
+
+  <div class="quote-card" id="homeQuote">
+    <div class="quote-tag">🎌 Today's Anime Wisdom</div>
+    <div class="quote-jp" id="homeQuoteJP"></div>
+    <div class="quote-en" id="homeQuoteEN"></div>
+    <div class="quote-source" id="homeQuoteSRC"></div>
+  </div>
+
+  <div class="section-label">Choose Your Level</div>
+  <div class="level-grid">
+    <div class="level-card selected" data-level="N5" onclick="selectLevel(this)">
+      <div class="level-kanji">N5</div>
+      <div class="level-rank">🥋 GENIN</div>
+      <div class="level-desc">Complete Beginner</div>
+      <div class="level-stats">
+        <div class="level-stat-bar"><div class="level-stat-fill" id="bar-N5" style="width:0%"></div></div>
+        <div class="level-stat-label"><span id="seen-N5">0 studied</span><span>50 words</span></div>
+      </div>
+      <div class="level-free">🎁 Always Open</div>
+    </div>
+    <div class="level-card" data-level="N4" onclick="selectLevel(this)">
+      <div class="level-kanji">N4</div>
+      <div class="level-rank">⚔️ CHUNIN</div>
+      <div class="level-desc">Elementary</div>
+      <div class="level-stats">
+        <div class="level-stat-bar"><div class="level-stat-fill" id="bar-N4" style="width:0%"></div></div>
+        <div class="level-stat-label"><span id="seen-N4">0 studied</span><span>50 words</span></div>
+      </div>
+      <div class="level-free">🎁 Always Open</div>
+    </div>
+    <div class="level-card" data-level="N3" onclick="selectLevel(this)">
+      <div class="level-kanji">N3</div>
+      <div class="level-rank">🗡️ JONIN</div>
+      <div class="level-desc">Intermediate</div>
+      <div class="level-stats">
+        <div class="level-stat-bar"><div class="level-stat-fill" id="bar-N3" style="width:0%"></div></div>
+        <div class="level-stat-label"><span id="seen-N3">0 studied</span><span>50 words</span></div>
+      </div>
+      <div class="level-free">🎁 Always Open</div>
+    </div>
+    <div class="level-card" data-level="N2" onclick="selectLevel(this)">
+      <div class="level-kanji">N2</div>
+      <div class="level-rank">👁️ ANBU</div>
+      <div class="level-desc">Upper Intermediate</div>
+      <div class="level-stats">
+        <div class="level-stat-bar"><div class="level-stat-fill" id="bar-N2" style="width:0%"></div></div>
+        <div class="level-stat-label"><span id="seen-N2">0 studied</span><span>50 words</span></div>
+      </div>
+      <div class="level-free">🎁 Always Open</div>
+    </div>
+    <div class="level-card" style="grid-column:span 2" data-level="N1" onclick="selectLevel(this)">
+      <div class="level-kanji">N1</div>
+      <div class="level-rank">🌟 KAGE</div>
+      <div class="level-desc">Advanced / Native Level</div>
+      <div class="level-stats">
+        <div class="level-stat-bar"><div class="level-stat-fill" id="bar-N1" style="width:0%"></div></div>
+        <div class="level-stat-label"><span id="seen-N1">0 studied</span><span>50 words</span></div>
+      </div>
+      <div class="level-free">🎁 Always Open</div>
+    </div>
+  </div>
+
+  <div class="section-label">Game Mode</div>
+  <div class="mode-row">
+    <button class="mode-pill sel" data-mode="meaning" onclick="selectMode(this)">🎯 Meaning</button>
+    <button class="mode-pill" data-mode="reading" onclick="selectMode(this)">📖 Reading</button>
+    <button class="mode-pill" data-mode="fill" onclick="selectMode(this)">✏️ Type It</button>
+    <button class="mode-pill" data-mode="flash" onclick="selectMode(this)">🃏 Flashcard</button>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">始めましょう — Let's Begin →</button>
+
+  <button class="share-app-btn" onclick="shareApp()" style="margin-top:12px">
+    🔗 Share This App with a Friend
+  </button>
+</div>
+
+<!-- ── GAME SCREEN ── -->
+<div class="screen" id="gameScreen">
+  <div class="game-top">
+    <div class="gt-left">
+      <div class="gt-level" id="gtLevel"></div>
+      <div class="gt-rank" id="gtRank"></div>
+    </div>
+    <div class="gt-right">
+      <div class="gt-score">⭐ <span id="gtScore">0</span></div>
+      <div class="gt-lives" id="gtLives"></div>
+    </div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="progFill" style="width:0%"></div></div>
+
+  <!-- XP + Streak HUD -->
+  <div class="xp-hud">
+    <div class="xp-rank-badge" id="xpRankBadge">🥋</div>
+    <div class="xp-bar-wrap">
+      <div class="xp-bar-label">
+        <span id="xpRankName">Genin</span>
+        <span id="xpLabel">0 XP</span>
+      </div>
+      <div class="xp-bar-track"><div class="xp-bar-fill" id="xpBarFill" style="width:0%"></div></div>
+    </div>
+    <div class="xp-streak" id="xpStreakDisplay">🔥0</div>
+  </div>
+  <div class="q-card" id="qCard">
+    <div class="q-tag" id="qTag"></div>
+    <div id="answerArea"></div>
+    <div class="sensei-quote" id="senseiQuote">
+      <div class="sensei-text" id="senseiText"></div>
+      <div class="sensei-src" id="senseiSrc"></div>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQ()">Next →</button>
+  </div>
+</div>
+
+<!-- ── SCORE SCREEN ── -->
+<div class="screen" id="scoreScreen">
+  <div class="score-wrap">
+    <div class="score-jp" id="scoreJP"></div>
+    <div class="score-en" id="scoreEN"></div>
+    <div class="score-num" id="scoreNum"></div>
+    <div class="score-denom" id="scoreDenom"></div>
+    <div class="score-sub" id="scoreSub"></div>
+    <div class="score-quote" id="scoreQuote">
+      <div class="sq-label">🎌 Anime Wisdom</div>
+      <div class="sq-jp" id="sqJP"></div>
+      <div class="sq-en" id="sqEN"></div>
+      <div class="sq-src" id="sqSRC"></div>
+    </div>
+    <div class="dots-row" id="dotsRow"></div>
+    <!-- XP Summary -->
+    <div class="score-xp-summary" id="scoreXpSummary">
+      <div class="sxp-icon">⭐</div>
+      <div class="sxp-text">
+        <div class="sxp-title" id="sxpTitle">XP Earned This Session</div>
+        <div class="sxp-sub" id="sxpSub">Total XP: 0</div>
+      </div>
+      <div class="sxp-total" id="sxpTotal">+0</div>
+    </div>
+    <div class="score-actions" style="flex-wrap:wrap;gap:10px">
+      <button class="sc-btn sc-home" onclick="goHome()">🏠 Home</button>
+      <button class="sc-btn sc-share" onclick="shareScore()">📤 Share Score</button>
+      <button class="sc-btn sc-again" onclick="startGame()" style="flex-basis:100%">もう一度 →</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrapper -->
+
+<!-- ── SOCIAL FOOTER BAR ── -->
+<nav class="social-footer" aria-label="Share on social media">
+  <span class="sf-label">Share ✦</span>
+  <button class="sf-btn sf-tw" onclick="shareTo('twitter')" title="Share on X / Twitter">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    X / Twitter
+  </button>
+  <button class="sf-btn sf-wa" onclick="shareTo('whatsapp')" title="Share on WhatsApp">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    WhatsApp
+  </button>
+  <button class="sf-btn sf-fb" onclick="shareTo('facebook')" title="Share on Facebook">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    Facebook
+  </button>
+  <button class="sf-btn sf-rd" onclick="shareTo('reddit')" title="Share on Reddit">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
+    Reddit
+  </button>
+  <button class="sf-btn sf-li" onclick="shareTo('linkedin')" title="Share on LinkedIn">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    LinkedIn
+  </button>
+</nav>
+
+<!-- ── ORIGIN PANEL ── -->
+<div class="panel-overlay" id="originOverlay" onclick="closeOrigin(event)">
+  <div class="origin-panel" id="originPanel" style="position:relative">
+    <div class="panel-handle"></div>
+    <button class="panel-close" onclick="closeOriginBtn()">✕</button>
+    <div class="panel-word" id="opWord"></div>
+    <div class="panel-reading" id="opReading"></div>
+
+    <div class="origin-section">
+      <div class="origin-section-title">🏛️ Kanji Pictograph Origin</div>
+      <div class="origin-section-body" id="opPictograph"></div>
+    </div>
+    <div class="origin-section">
+      <div class="origin-section-title">🧩 Radical Breakdown</div>
+      <div class="radical-pills" id="opRadicals"></div>
+    </div>
+    <div class="origin-section">
+      <div class="origin-section-title">🎭 Literal / Funny Meaning</div>
+      <div class="origin-section-body" id="opLiteral"></div>
+    </div>
+    <div class="origin-section">
+      <div class="origin-section-title">📖 Memory Hook Story</div>
+      <div class="origin-section-body" id="opHook"></div>
+    </div>
+    <div class="origin-section">
+      <div class="origin-section-title">🔗 Related Kanji</div>
+      <div class="related-row" id="opRelated"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SHARE MODAL ── -->
+<div class="modal-overlay" id="shareModal" onclick="closeShareModal(event)">
+  <div class="share-modal-box" onclick="event.stopPropagation()">
+    <button class="panel-close" onclick="closeShareModal()" style="position:absolute;top:14px;right:16px">✕</button>
+    <div style="font-size:2rem;margin-bottom:8px" id="shareModalIcon">📤</div>
+    <div class="share-title" id="shareModalTitle">Share Your Score</div>
+    <div class="share-text-preview" id="shareTextPreview"></div>
+    <div class="share-socials" style="grid-template-columns:1fr 1fr 1fr">
+      <button class="share-soc-btn soc-twitter" onclick="shareTo('twitter')">𝕏 Twitter</button>
+      <button class="share-soc-btn soc-whatsapp" onclick="shareTo('whatsapp')">💬 WhatsApp</button>
+      <button class="share-soc-btn soc-facebook" onclick="shareTo('facebook')">f Facebook</button>
+      <button class="share-soc-btn" style="background:#ff4500;color:white" onclick="shareTo('reddit')">🤖 Reddit</button>
+      <button class="share-soc-btn soc-linkedin" onclick="shareTo('linkedin')">in LinkedIn</button>
+      <button class="share-soc-btn" style="background:#1da1f2;color:white" onclick="copyLink()">🔗 Copy</button>
+    </div>
+    <button class="copy-link-btn" id="copyLinkBtn" onclick="copyLink()">🔗 Copy Link</button>
+    <span class="modal-dismiss" onclick="closeShareModal()">Close</span>
+  </div>
+</div>
+
+<!-- ── EMAIL MODAL ── -->
+<div class="modal-overlay" id="emailModal">
+  <div class="modal-box">
+    <div class="modal-icon">📬</div>
+    <div class="modal-title">Get JLPT Study Tips</div>
+    <div class="modal-sub">Join free — get weekly vocab tips, anime study tricks, and exam strategies straight to your inbox.</div>
+    <div class="email-form">
+      <input class="email-inp" id="emailInp" type="email" placeholder="your@email.com">
+      <a href="https://YOUR-MAILCHIMP-LINK-HERE" target="_blank" class="modal-btn" onclick="handleEmailSignup()">Subscribe Free →</a>
+    </div>
+    <span class="modal-dismiss" onclick="closeEmail()">Maybe later</span>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// ANIME QUOTES
+// ─────────────────────────────────────────────
+const animeQuotes = [
+  { jp:'諦めたらそこで試合終了だよ。', en:'"If you give up, that\'s where the game ends."', src:'— Coach Anzai, Slam Dunk 🏀' },
+  { jp:'俺がやらなきゃ、誰がやる。', en:'"If I don\'t do it, who will?"', src:'— Eren Yeager, Attack on Titan ⚔️' },
+  { jp:'努力した者が全て報われるとは限らない。しかし、成功した者は皆すべからく努力している。', en:'"Not all who work hard are rewarded — but all who succeed have worked hard."', src:'— Rock Lee, Naruto 🍃' },
+  { jp:'限界を超えろ。', en:'"Go beyond your limits."', src:'— All Might, My Hero Academia 💪' },
+  { jp:'自分を信じること、それが一番大切なことだ。', en:'"Believing in yourself — that\'s what matters most."', src:'— Monkey D. Luffy, One Piece 🏴‍☠️' },
+  { jp:'失敗は成功の母。', en:'"Failure is the mother of success."', src:'— Dr. Stone 🧪' },
+  { jp:'今を生きろ。', en:'"Live in this moment."', src:'— Sword Art Online ⚔️' },
+  { jp:'仲間を守るために強くなる。', en:'"I get stronger to protect those I care about."', src:'— Naruto Uzumaki, Naruto 🍃' },
+  { jp:'どんな夢も諦めなければ叶う。', en:'"Any dream can come true if you never give up."', src:'— Gol D. Roger, One Piece 🏴‍☠️' },
+  { jp:'恐怖を乗り越えた先に、本当の強さがある。', en:'"True strength lies on the other side of fear."', src:'— Demon Slayer 🗡️' },
+];
+
+const senseiQuotes = [
+  { text:'"It\'s not about talent — it\'s about effort." ', src:'— All Might 💪' },
+  { text:'"Failure is just another step on the path to mastery."', src:'— Rock Lee 🍃' },
+  { text:'"Even I got answers wrong before I became the best."', src:'— L, Death Note 🍰' },
+  { text:'"A true warrior never stops learning."', src:'— Kenshin Himura ⚔️' },
+  { text:'"The only way is forward. Never look back with regret."', src:'— Naruto 🍃' },
+  { text:'"Every mistake is a lesson wearing a disguise."', src:'— Senku, Dr. Stone 🧪' },
+];
+
+const lvlRanks = { N5:'🥋 GENIN', N4:'⚔️ CHUNIN', N3:'🗡️ JONIN', N2:'👁️ ANBU', N1:'🌟 KAGE' };
+const lvlColor = { N5:'#27ae60', N4:'#2980b9', N3:'#8e44ad', N2:'#e67e22', N1:'#c0392b' };
+
+// ─────────────────────────────────────────────
+// VOCAB + ORIGIN DATA
+// ─────────────────────────────────────────────
+const vocab = {
+  N5: [
+    { k:'水', f:'みず', r:'mizu', m:'water', pos:'noun',
+      origin:{ pictograph:'水 originally depicted flowing water — the three wavy lines in the centre represent streams flowing downward. Ancient oracle bone script shows it as a winding river.', radicals:[{k:'水',m:'water'}], literal:'Looks like water dripping between your fingers 💧', hook:'Imagine pouring WATER (みず) — the kanji flows like a river!', related:['海','川','泳'] }},
+    { k:'火', f:'ひ', r:'hi', m:'fire', pos:'noun',
+      origin:{ pictograph:'火 was drawn as dancing flames rising upward. The two strokes at the bottom are the base of the fire, the top strokes are the flames.', radicals:[{k:'火',m:'fire'}], literal:'Looks like a flame with sparks flying up 🔥', hook:'HI! A FIRE says "hi" when it crackles — ひ (hi)!', related:['炎','燃','焼'] }},
+    { k:'山', f:'やま', r:'yama', m:'mountain', pos:'noun',
+      origin:{ pictograph:'山 is one of the most iconic pictographs — three peaks of a mountain range. The tallest peak is in the middle, just like Fuji-san! Used since 3,000 BCE in Chinese script.', radicals:[{k:'山',m:'mountain'}], literal:'Three mountain peaks side by side — you can literally see the mountains! 🏔️', hook:'YAMA-ha motorcycles climb mountains — やま (yama)!', related:['岩','岳','峰'] }},
+    { k:'川', f:'かわ', r:'kawa', m:'river', pos:'noun',
+      origin:{ pictograph:'川 shows three streams flowing downward — the outer two are the riverbanks, the middle is the main current. You can almost see the river flowing!', radicals:[{k:'川',m:'river'}], literal:'Three vertical lines = three streams of water flowing down 🌊', hook:'A RIVER (かわ) has banks on each side — just like the outer strokes!', related:['水','海','流'] }},
+    { k:'食べる', f:'たべる', r:'taberu', m:'to eat', pos:'verb (ru)',
+      origin:{ pictograph:'食 shows a person (人) bending over a bowl (皿) of food. The top part (𠆢) represents a lid or roof over the food.', radicals:[{k:'食',m:'eat/food'},{k:'人',m:'person'}], literal:'A person hunching over their dinner plate 🍱', hook:'TABle + ERU = you eat at the TABLE (たべる)!', related:['飲','味','料'] }},
+    { k:'飲む', f:'のむ', r:'nomu', m:'to drink', pos:'verb (u)',
+      origin:{ pictograph:'飲 combines 食 (food/eat) with a mouth opening wide (欠 — a person yawning/opening mouth). Together: opening your mouth to drink.', radicals:[{k:'食',m:'food'},{k:'欠',m:'open mouth/lack'}], literal:'Food radical + open mouth = consuming liquid 🥤', hook:'NO MU-g — you say NO to an empty MUG, you want to drink! のむ!', related:['食','酒','水'] }},
+    { k:'行く', f:'いく', r:'iku', m:'to go', pos:'verb (u)',
+      origin:{ pictograph:'行 originally showed a crossroads (彳 left + 亍 right) — a person standing at an intersection, ready to GO somewhere.', radicals:[{k:'彳',m:'step/road'},{k:'亍',m:'road right'}], literal:'Standing at a crossroads — which way will you GO? 🚶', hook:'IKU sounds like "I go" — I go (いく)!', related:['来','歩','帰'] }},
+    { k:'大きい', f:'おおきい', r:'ookii', m:'big / large', pos:'adj (i)',
+      origin:{ pictograph:'大 shows a person (人) standing with arms and legs spread wide — making themselves as BIG as possible! The greatest human gesture of size.', radicals:[{k:'大',m:'big/large'},{k:'人',m:'person'}], literal:'A person doing a star jump — arms and legs spread = BIG! ⭐', hook:'OO-KII — say "ooh!" when you see something BIG (おおきい)!', related:['小','太','天'] }},
+    { k:'新しい', f:'あたらしい', r:'atarashii', m:'new', pos:'adj (i)',
+      origin:{ pictograph:'新 combines 木 (tree) + 斤 (axe) + 立 (stand) — the image of freshly CUT timber, brand new wood just chopped from a standing tree.', radicals:[{k:'木',m:'tree'},{k:'斤',m:'axe'}], literal:'Freshly cut wood = brand new! 🪵', hook:'A-TA-RASHI — "Ah, that\'s the new one!" (あたらしい)!', related:['古','初','若'] }},
+    { k:'今日', f:'きょう', r:'kyou', m:'today', pos:'noun',
+      origin:{ pictograph:'今 (now) + 日 (sun/day) = TODAY. 今 shows something being held now — the present moment. 日 is the sun. Put them together: the sun of right now = today!', radicals:[{k:'今',m:'now'},{k:'日',m:'sun/day'}], literal:'NOW + SUN = today\'s sun = TODAY ☀️', hook:'KYOU sounds like "here you go" — TODAY I give you today! きょう!', related:['明日','昨日','毎日'] }},
+    { k:'友達', f:'ともだち', r:'tomodachi', m:'friend', pos:'noun',
+      origin:{ pictograph:'友 shows two hands clasped together — two people reaching out to each other in friendship. 達 means "to reach/arrive" — a friend is someone you reach out to!', radicals:[{k:'友',m:'friend'},{k:'達',m:'reach/plural'}], literal:'Two hands clasped = friendship handshake 🤝', hook:'TOMODACHI — "TO-MO-DACHI" — Together, More, Dachi (Let\'s go)! Friends go together!', related:['仲間','家族','知人'] }},
+    { k:'学校', f:'がっこう', r:'gakkou', m:'school', pos:'noun',
+      origin:{ pictograph:'学 shows a child (子) under a roof with hands above — a child being taught under a roof = learning. 校 adds wood (木) + the idea of a structure = school building!', radicals:[{k:'学',m:'study/learn'},{k:'校',m:'school building'}], literal:'Child being taught under a roof 🏫', hook:'GAKKOU — "GACK! School!" — that\'s your reaction Monday morning! がっこう!', related:['大学','教室','先生'] }},
+    { k:'好き', f:'すき', r:'suki', m:'like / fond of', pos:'adj (na)',
+      origin:{ pictograph:'好 shows a woman (女) next to a child (子) — a mother\'s love for her child was the original image of LIKING or loving something. Pure affection!', radicals:[{k:'女',m:'woman'},{k:'子',m:'child'}], literal:'Mother + child = love/like ❤️', hook:'SUKI sounds like "Suckey" — the opposite of what you LIKE! But you love suki! すき!', related:['嫌い','愛','恋'] }},
+    { k:'今日', f:'きょう', r:'kyou', m:'today', pos:'noun',
+      origin:{ pictograph:'今 (now) + 日 (day) = TODAY. The kanji for "now" combined with "sun/day."', radicals:[{k:'今',m:'now'},{k:'日',m:'day'}], literal:'The sun of right now ☀️', hook:'KYOU = today is happening right NOW under the sun!', related:['明日','昨日','毎日'] }},
+    { k:'明日', f:'あした', r:'ashita', m:'tomorrow', pos:'noun',
+      origin:{ pictograph:'明 combines 日 (sun) + 月 (moon) — the brightness of BOTH sun and moon = tomorrow\'s bright new day coming! 日 (day) again reinforces "day."', radicals:[{k:'日',m:'sun'},{k:'月',m:'moon'}], literal:'Sun + Moon together = a new bright day is coming 🌅', hook:'A-SHITA = "Ah, see you tomorrow!" あした!', related:['今日','昨日','来週'] }},
+  ],
+  N4: [
+    { k:'電話', f:'でんわ', r:'denwa', m:'telephone', pos:'noun',
+      origin:{ pictograph:'電 shows rain (雨) with lightning bolts (電) — electricity from a storm. 話 shows a tongue (舌) + words (言) = speaking. Together: speaking with electricity!', radicals:[{k:'電',m:'electricity'},{k:'話',m:'speak'}], literal:'Electricity + Speech = Electric Talking Machine ⚡🗣️', hook:'DEN-WA: "DEN" like a dragon\'s den of electricity, "WA" like "wah!" you spoke! でんわ!', related:['携帯','メール','連絡'] }},
+    { k:'天気', f:'てんき', r:'tenki', m:'weather', pos:'noun',
+      origin:{ pictograph:'天 shows a person (大) with a line above their head — the sky ABOVE a person. 気 originally showed steam/vapour rising — energy, atmosphere, spirit. Sky energy = weather!', radicals:[{k:'天',m:'sky/heaven'},{k:'気',m:'energy/atmosphere'}], literal:'The energy of the sky = weather ⛅', hook:'TEN-KI: "TEN" like heaven, "KI" like energy — heavenly energy = today\'s weather!', related:['雨','晴れ','気温'] }},
+    { k:'料理', f:'りょうり', r:'ryouri', m:'cooking / dish', pos:'noun',
+      origin:{ pictograph:'料 shows rice (米) being measured (斗) — measuring ingredients. 理 shows a jade gem being polished — bringing out inner beauty. Together: measuring and perfecting food!', radicals:[{k:'料',m:'ingredients'},{k:'理',m:'logic/polish'}], literal:'Measuring + Perfecting = Cooking something beautifully 🍳', hook:'RYOU-RI: "RYO" like Rio carnival of flavours, "RI" like "really delicious!" りょうり!', related:['食べ物','味','レストラン'] }},
+    { k:'旅行', f:'りょこう', r:'ryokou', m:'travel', pos:'noun',
+      origin:{ pictograph:'旅 shows a person (人) under a flag on the move — a traveller following a route marker. 行 is a crossroads (going). Together: a person moving from place to place following the road!', radicals:[{k:'旅',m:'travel/trip'},{k:'行',m:'go/travel'}], literal:'Traveller + Road = Journey! ✈️', hook:'RYO-KOU: "Ryo" like your travel backpack, "kou" like GO — pack your bag and GO! りょこう!', related:['旅人','観光','外国'] }},
+    { k:'練習', f:'れんしゅう', r:'renshuu', m:'practice', pos:'noun',
+      origin:{ pictograph:'練 shows thread (糸) being pulled through repeatedly — refining silk by repeated action. 習 shows a bird (羽) learning to fly — a young bird practising flapping. Together: repeated refinement!', radicals:[{k:'糸',m:'thread'},{k:'羽',m:'wings/feathers'}], literal:'Refining thread + Young bird learning to fly = Practice! 🐦', hook:'REN-SHUU: "REN" like training again and again, "SHUU" like "Shoo! Keep practising!" れんしゅう!', related:['勉強','訓練','上達'] }},
+    { k:'覚える', f:'おぼえる', r:'oboeru', m:'to memorise', pos:'verb (ru)',
+      origin:{ pictograph:'覚 shows a roof (宀) protecting a crossed pattern (爻) above an eye (見) — knowledge being seen and protected under a roof in your mind = to remember!', radicals:[{k:'見',m:'see'},{k:'宀',m:'roof'}], literal:'Keeping knowledge safe under a mental roof 🧠', hook:'O-BOE-RU: "OH BOY, I REMEMBER!" — say it when you suddenly recall something! おぼえる!', related:['忘れる','思い出す','記憶'] }},
+    { k:'忘れる', f:'わすれる', r:'wasureru', m:'to forget', pos:'verb (ru)',
+      origin:{ pictograph:'忘 combines 亡 (death/gone) + 心 (heart/mind) — when something dies from your heart/mind, you forget it. Poetic and a little sad!', radicals:[{k:'亡',m:'gone/dead'},{k:'心',m:'heart/mind'}], literal:'Something dying from your heart = forgetting 💔', hook:'WASU-RERU: "WAS-URE" — something WAS here, now it\'s URE-levant... I forgot! わすれる!', related:['覚える','記憶','思い出す'] }},
+    { k:'親切', f:'しんせつ', r:'shinsetsu', m:'kind / kindness', pos:'adj (na)',
+      origin:{ pictograph:'親 shows a tree (木) being stood next to and watched (見) — a parent standing close, watching over. 切 means to cut — cutting through with care. Kindness cuts through barriers!', radicals:[{k:'親',m:'parent/close'},{k:'切',m:'cut/sincere'}], literal:'Close + Sincere = Genuine Kindness 💛', hook:'SHIN-SETSU: "SHIN" like shining heart, "SETSU" like "let\'s" be kind! しんせつ!', related:['優しい','丁寧','思いやり'] }},
+  ],
+  N3: [
+    { k:'環境', f:'かんきょう', r:'kankyou', m:'environment', pos:'noun',
+      origin:{ pictograph:'環 shows jade rings (玉) going around in a circle — encircling. 境 shows earth (土) with a boundary. Together: the circular boundary of the earth around us = environment!', radicals:[{k:'玉',m:'jewel/circle'},{k:'土',m:'earth'},{k:'境',m:'boundary'}], literal:'Circular + Boundary of Earth = The world surrounding us 🌍', hook:'KAN-KYO: "CAN" the environment "GO" (kyou) on? — we must protect it! かんきょう!', related:['自然','地球','生態系'] }},
+    { k:'責任', f:'せきにん', r:'sekinin', m:'responsibility', pos:'noun',
+      origin:{ pictograph:'責 shows a bundle (朿) being piled on a person — the burden of obligations piling up. 任 shows a person (人) carrying something — bearing a load. Together: bearing the burden you\'re obligated to carry!', radicals:[{k:'朿',m:'thorn/burden'},{k:'人',m:'person'}], literal:'A burden being placed on someone who must carry it 💪', hook:'SEKI-NIN: "SEEK" your responsibilities, "NIN" like ninja — a ninja never avoids duty! せきにん!', related:['義務','役割','職務'] }},
+    { k:'可能性', f:'かのうせい', r:'kanousei', m:'possibility', pos:'noun',
+      origin:{ pictograph:'可 shows a mouth (口) giving approval — possible, permitted. 能 shows a bear (能) — a capable, powerful creature. 性 is nature/essence. Together: the capable nature of something being approved = possibility!', radicals:[{k:'口',m:'mouth'},{k:'能',m:'ability'},{k:'性',m:'nature'}], literal:'Approval + Capability + Essence = The potential for something to happen ✨', hook:'KA-NOU-SEI: "CAN-DO-SAY" — if you CAN DO it, SAY yes! It\'s possible! かのうせい!', related:['可能','機会','チャンス'] }},
+    { k:'影響', f:'えいきょう', r:'eikyou', m:'influence / effect', pos:'noun',
+      origin:{ pictograph:'影 shows a shadow (彡) cast by the sun through trees (景) — a shadow is the influence of an object on light. 響 shows a sound wave echoing (音+鄕) — influence echoes out like sound!', radicals:[{k:'景',m:'scenery/light'},{k:'彡',m:'shadow/hair'},{k:'音',m:'sound'}], literal:'Shadow + Echo = The effect one thing has on another 🌊', hook:'EI-KYO: Think of the ripple EFFECT (えいきょう) — like throwing a stone in water, the influence spreads!', related:['効果','作用','結果'] }},
+    { k:'複雑', f:'ふくざつ', r:'fukuzatsu', m:'complicated / complex', pos:'adj (na)',
+      origin:{ pictograph:'複 shows a garment (衣) doubled (畐) — something layered and overlapping. 雑 shows a bird (隹) among trees (木) with mixed things (九) — chaotic and mixed. Layered chaos = complicated!', radicals:[{k:'衣',m:'clothing'},{k:'隹',m:'bird'},{k:'木',m:'tree'}], literal:'Layered clothing + Bird in tangled trees = COMPLICATED! 🐦‍⬛', hook:'FUKU-ZATSU: "Full of ZEST" — complicated things are full of tangled energy! ふくざつ!', related:['簡単','難しい','単純'] }},
+  ],
+  N2: [
+    { k:'概念', f:'がいねん', r:'gainen', m:'concept / notion', pos:'noun',
+      origin:{ pictograph:'概 shows a wooden measure being levelled off (木+旣) — an approximate, levelled understanding. 念 shows a heart (心) with now (今) — a thought present in the heart RIGHT NOW. A levelled thought in your heart = concept!', radicals:[{k:'木',m:'wood'},{k:'心',m:'heart'},{k:'今',m:'now'}], literal:'An approximate measure held in the heart = a concept 💭', hook:'GAI-NEN: "GUY + NEN" — that guy\'s idea, that notion in his head! がいねん!', related:['観念','思想','理念'] }},
+    { k:'維持', f:'いじ', r:'iji', m:'to maintain', pos:'verb (suru)',
+      origin:{ pictograph:'維 shows thread (糸) tied to a bird (隹) — holding something in place with thread. 持 shows a hand (扌) holding something — gripping. Together: holding and gripping to keep something in place!', radicals:[{k:'糸',m:'thread'},{k:'扌',m:'hand'}], literal:'Thread + Grip = Holding something together so it doesn\'t fall apart 🧵', hook:'I-JI: "EEE-GEE" — hold on, MAINTAIN your composure! いじ!', related:['保持','継続','持続'] }},
+    { k:'顕著', f:'けんちょ', r:'kencho', m:'conspicuous / remarkable', pos:'adj (na)',
+      origin:{ pictograph:'顕 shows a head (頁) being illuminated (显) — something standing out visibly. 著 shows grass (艹) and something being written clearly (者) — remarkably clear like words on a page.', radicals:[{k:'頁',m:'head/page'},{k:'艹',m:'grass/plant'},{k:'者',m:'person/thing'}], literal:'An illuminated head + written clearly = standing out remarkably! 💡', hook:'KEN-CHO: "KEN saw CHO-mpsky and was REMARKABLY impressed!" けんちょ!', related:['明白','顕在','著名'] }},
+    { k:'把握', f:'はあく', r:'haaku', m:'to grasp / understand', pos:'verb (suru)',
+      origin:{ pictograph:'把 shows a hand (扌) gripping something tightly (巴 — a coiling snake shape). 握 shows a hand (扌) squeezing (屋) — the act of tightly gripping. Double hand energy = to truly grasp!', radicals:[{k:'扌',m:'hand (x2)'},{k:'巴',m:'coil/grip'}], literal:'Two hand radicals = gripping tightly with both hands 🤝', hook:'HA-AKU: "HA! I GRASP it now!" — that AHA moment of understanding! はあく!', related:['理解','認識','掌握'] }},
+  ],
+  N1: [
+    { k:'逡巡', f:'しゅんじゅん', r:'shunjun', m:'hesitation / wavering', pos:'noun',
+      origin:{ pictograph:'逡 shows movement (辶) combined with retreating (夋) — moving but pulling back. 巡 shows movement going around (辶+巛) — circling without committing. Pure hesitation in kanji form!', radicals:[{k:'辶',m:'movement'},{k:'夋',m:'retreat'}], literal:'Moving forward + retreating + circling = going nowhere from hesitation! 🌀', hook:'SHUN-JUN: "SHOULD I? NO! SHOULD I?" — the eternal internal debate of hesitation! しゅんじゅん!', related:['躊躇','迷い','優柔不断'] }},
+    { k:'矛盾', f:'むじゅん', r:'mujun', m:'contradiction', pos:'noun',
+      origin:{ pictograph:'This comes from a famous Chinese fable! A salesman boasted his 矛 (spear) could pierce anything, and his 盾 (shield) could block anything. Someone asked: "What happens if your spear hits your shield?" — CONTRADICTION born!', radicals:[{k:'矛',m:'spear'},{k:'盾',m:'shield'}], literal:'The ultimate spear vs the ultimate shield — they cannot both be true ⚔️🛡️', hook:'MU-JUN: "MOO! JUNE is contradicting herself again!" むじゅん! Think of the spear-shield paradox!', related:['逆説','ジレンマ','パラドックス'] }},
+    { k:'幽玄', f:'ゆうげん', r:'yuugen', m:'subtle / profound (aesthetic)', pos:'adj (na)',
+      origin:{ pictograph:'幽 shows a mountain (山) with hidden, dimly-lit recesses (幺幺) — the mysterious dark corners. 玄 shows a twisted thread going dark — deep, mysterious black. Together: the profound beauty found in mystery and shadow!', radicals:[{k:'山',m:'mountain'},{k:'幺',m:'small/dim'},{k:'玄',m:'dark/mysterious'}], literal:'Hidden mountain shadows + deep darkness = profound mysterious beauty 🌙', hook:'YUU-GEN: "YOU" find "GEN"-uine beauty in the unseen — that\'s 幽玄, the Japanese art of finding magic in subtlety! ゆうげん!', related:['侘び寂び','もののあわれ','雅'] }},
+    { k:'忖度', f:'そんたく', r:'sontaku', m:'reading the air / second-guessing superiors', pos:'noun',
+      origin:{ pictograph:'忖 shows the heart (心) + measuring (寸) — measuring with your heart, intuiting what someone feels. 度 shows a hand measuring under a roof — calculating dimensions. Together: carefully measuring what someone feels without them saying it!', radicals:[{k:'心',m:'heart'},{k:'寸',m:'measure'},{k:'度',m:'degree'}], literal:'Heart-measuring + calculating = figuring out what your boss wants before they say it! 🎯', hook:'SON-TAKU: "SON, TAKE a guess at what I want!" — reading between the lines in Japanese workplace culture! そんたく!', related:['空気を読む','忖度する','配慮'] }},
+    { k:'変遷', f:'へんせん', r:'hensen', m:'transition / change over time', pos:'noun',
+      origin:{ pictograph:'変 shows a thread being transformed (変化) — something changing form. 遷 shows movement (辶) + a high place (西+大) — moving from one high point to another over time. The journey of transformation!', radicals:[{k:'辶',m:'movement'},{k:'変',m:'change'}], literal:'Change + Moving from peak to peak over time = historical transition 📜', hook:'HEN-SEN: "HEN" like CHANGE (変) and "SEN" like THOUSAND years — change over a thousand years! へんせん!', related:['変化','推移','移行'] }},
+  ]
+};
+
+// Fill remaining vocab without origin data using a default
+const defaultOrigin = (k) => ({
+  pictograph: `${k} has roots in ancient Chinese pictographic script, evolving over centuries into its modern form through gradual simplification.`,
+  radicals: [{k: k[0], m:'component'}],
+  literal: `The character carries meaning through its visual components combined.`,
+  hook: `Break it into parts and create your own visual story to remember it!`,
+  related: []
+});
+
+// Extend all vocab with default origin if missing
+Object.values(vocab).forEach(arr => arr.forEach(w => { if (!w.origin) w.origin = defaultOrigin(w.k); }));
+
+// Add more N4 words — all with full rich origin data
+const extraN4 = [
+  { k:'音楽', f:'おんがく', r:'ongaku', m:'music', pos:'noun',
+    origin:{ pictograph:'音 shows a mouth (口) with a sound wave line coming out — sound itself! 楽 shows strings stretched over a frame (木) — a stringed instrument being played. Sound + instrument = music!', radicals:[{k:'音',m:'sound'},{k:'楽',m:'music/pleasure'}], literal:'Sound waves + a stringed instrument = Music flowing through the air 🎵', hook:'ON-GA-KU: "Oh! Nice! Cool!" — that\'s what you say when you hear great music! おんがく!', related:['歌','楽器','演奏'] }},
+  { k:'映画', f:'えいが', r:'eiga', m:'movie', pos:'noun',
+    origin:{ pictograph:'映 shows the sun (日) projecting light (央) outward — like a projector beam! 画 shows a field (田) divided by lines — a frame, a picture. Light projected into frames = movie!', radicals:[{k:'日',m:'sun/light'},{k:'画',m:'picture/frame'}], literal:'Projected light + framed pictures = cinema magic 🎬', hook:'EI-GA: "Hey! GAH!" — you say "Hey! Gah!" when a plot twist hits in a movie! えいが!', related:['映画館','俳優','監督'] }},
+  { k:'仕事', f:'しごと', r:'shigoto', m:'work / job', pos:'noun',
+    origin:{ pictograph:'仕 shows a person (人) serving — originally "to serve a master." 事 shows a hand holding a writing brush (史) — recording things, doing official business. Serving + doing official things = work!', radicals:[{k:'人',m:'person'},{k:'事',m:'matter/thing'}], literal:'A servant diligently recording work = your job! 💼', hook:'SHI-GO-TO: "She goes to" work every day — SHI-GO-TO! しごと!', related:['働く','職業','会社'] }},
+  { k:'準備', f:'じゅんび', r:'junbi', m:'preparation', pos:'noun',
+    origin:{ pictograph:'準 shows water (氵) flowing level (隼) — getting everything level and ready. 備 shows a person (人) with arrows (備) stored ready to use — being armed and prepared!', radicals:[{k:'氵',m:'water'},{k:'人',m:'person'},{k:'矢',m:'arrow'}], literal:'Levelling the water + storing arrows = fully prepared! 🏹', hook:'JUN-BI: "JUNE BE ready!" — prepare in June for summer! じゅんび!', related:['用意','準備する','計画'] }},
+  { k:'遊ぶ', f:'あそぶ', r:'asobu', m:'to play / hang out', pos:'verb (u)',
+    origin:{ pictograph:'遊 shows movement (辶) with a flag and child (斿) — a child wandering freely with a flag, like playing outside! The freedom of movement = to play!', radicals:[{k:'辶',m:'movement'},{k:'子',m:'child'}], literal:'A child freely roaming and waving a flag = playing! 🎈', hook:'A-SO-BU: "Ah! So BOOM!" — you shout "AH SO!" when you find someone to play with! あそぶ!', related:['楽しむ','ゲーム','遊園地'] }},
+  { k:'働く', f:'はたらく', r:'hataraku', m:'to work', pos:'verb (u)',
+    origin:{ pictograph:'働 is a Japanese-made kanji (和製漢字)! It combines person (人) + move (動) — a person in motion, actively doing something. A moving person = working!', radicals:[{k:'人',m:'person'},{k:'動',m:'move/motion'}], literal:'A person constantly in motion = working hard! ⚙️', hook:'HA-TA-RA-KU: "HIT-A-ROCK-OO!" — you hit a rock while working hard! はたらく!', related:['仕事','労働','勤める'] }},
+  { k:'教える', f:'おしえる', r:'oshieru', m:'to teach / tell', pos:'verb (ru)',
+    origin:{ pictograph:'教 shows an elder (孝) with a stick/rod (攵) — an elder instructing a child with a teaching stick. The authority of wisdom being passed down = to teach!', radicals:[{k:'孝',m:'filial piety'},{k:'攵',m:'strike/action'}], literal:'An elder with a teaching rod guiding the next generation 📚', hook:'O-SHI-E-RU: "Oh! She\'s a RU-ler!" — the teacher who rules the class! おしえる!', related:['学ぶ','先生','授業'] }},
+  { k:'急ぐ', f:'いそぐ', r:'isogu', m:'to hurry', pos:'verb (u)',
+    origin:{ pictograph:'急 shows a hand (又) gripping a heart (心) from above — urgency gripping your chest! When your heart is grabbed, you move fast. Urgency seizing the heart = to hurry!', radicals:[{k:'心',m:'heart'},{k:'又',m:'hand'}], literal:'A hand grabbing your heart with urgency — you\'d hurry too! ⚡', hook:'I-SO-GU: "I\'m SO GU-nna be late!" — that panic when you\'re running late! いそぐ!', related:['速い','走る','急いで'] }},
+  { k:'困る', f:'こまる', r:'komaru', m:'to be troubled', pos:'verb (u)',
+    origin:{ pictograph:'困 shows a tree (木) trapped inside a box (囗) — a tree that can\'t grow, confined and stunted. Feeling trapped like a tree in a box = being troubled or stuck!', radicals:[{k:'木',m:'tree'},{k:'囗',m:'enclosure/box'}], literal:'A tree imprisoned in a box — stuck, can\'t move = troubled! 😰', hook:'KO-MA-RU: "Oh COMMA, RU-ined!" — a grammar comma that ruins your sentence = total trouble! こまる!', related:['悩む','問題','大変'] }},
+  { k:'決める', f:'きめる', r:'kimeru', m:'to decide', pos:'verb (ru)',
+    origin:{ pictograph:'決 shows water (氵) breaking through (夬) a dam — the decisive moment when water bursts free. A burst of decisive action = to decide!', radicals:[{k:'氵',m:'water'},{k:'夬',m:'break through'}], literal:'Water bursting through a dam = making a final decision! 💥', hook:'KI-ME-RU: "Key ME RU!" — use the KEY to open the door = decide and commit! きめる!', related:['選ぶ','判断','決断'] }},
+  { k:'丁寧', f:'ていねい', r:'teinei', m:'polite / careful', pos:'adj (na)',
+    origin:{ pictograph:'丁 shows a nail being hammered in carefully — precise, exact. 寧 shows a heart (心) content under a roof — peaceful and calm at home. Careful precision + peaceful heart = polite!', radicals:[{k:'丁',m:'exact/nail'},{k:'心',m:'heart'},{k:'宀',m:'roof'}], literal:'Precise nailing + peaceful heart = refined politeness 🎎', hook:'TEI-NEI: "They\'re NEAT" — polite people are always neat and careful! ていねい!', related:['礼儀','親切','マナー'] }},
+  { k:'大切', f:'たいせつ', r:'taisetsu', m:'important', pos:'adj (na)',
+    origin:{ pictograph:'大 shows a person with arms stretched wide — something BIG and grand. 切 shows a knife (刀) cutting — something that cuts to the core. Big + cutting to the core = truly important!', radicals:[{k:'大',m:'big/great'},{k:'切',m:'cut/sincere'}], literal:'Great + cutting to the heart = what truly matters ❤️', hook:'TAI-SE-TSU: "TIE it SETS U" — tie down what\'s important so it stays! たいせつ!', related:['重要','貴重','大事'] }},
+  { k:'難しい', f:'むずかしい', r:'muzukashii', m:'difficult', pos:'adj (i)',
+    origin:{ pictograph:'難 shows a bird (隹) being strangled or caught (𦰩) — a bird trapped, struggling to escape. 難 originally meant "calamity" — something hard to escape from. Struggling = difficult!', radicals:[{k:'隹',m:'bird'},{k:'𦰩',m:'catch/strangle'}], literal:'A trapped struggling bird = something hard to deal with 🐦', hook:'MU-ZU-KA-SHII: "Moo! Zoo! Got SHEEP!" — herding sheep at a zoo is VERY difficult! むずかしい!', related:['易しい','大変','複雑'] }},
+  { k:'珍しい', f:'めずらしい', r:'mezurashii', m:'rare', pos:'adj (i)',
+    origin:{ pictograph:'珍 shows a jade gem (王/玉) that is special (㐱) — a truly rare precious jewel. Rare gems are the model for rarity itself!', radicals:[{k:'王',m:'king/gem'},{k:'㐱',m:'strange/special'}], literal:'A rare precious gemstone = something you almost never see 💎', hook:'ME-ZU-RA-SHII: "May-ZOO-RA-SHE" — maybe the zoo has a rare she-creature! めずらしい!', related:['特別','希少','貴重'] }},
+  { k:'悲しい', f:'かなしい', r:'kanashii', m:'sad', pos:'adj (i)',
+    origin:{ pictograph:'悲 shows the heart (心) at the bottom and 非 (wrong/not) on top — a heart full of "wrongness." When your heart feels things are wrong and broken = sadness!', radicals:[{k:'心',m:'heart'},{k:'非',m:'wrong/not'}], literal:'A heart full of "wrongness" = sadness flooding in 💧', hook:'KA-NA-SHII: "Can a SHEEP be sad?" — even a sheep gets かなしい sometimes! かなしい!', related:['泣く','辛い','寂しい'] }},
+  { k:'連絡', f:'れんらく', r:'renraku', m:'contact / communication', pos:'noun',
+    origin:{ pictograph:'連 shows movement (辶) + a cart (車) — things following one another in a connected line. 絡 shows thread (糸) wrapping around (各) — binding things together. A connected chain of communication = contact!', radicals:[{k:'辶',m:'movement'},{k:'車',m:'cart/vehicle'},{k:'糸',m:'thread'}], literal:'A chain of carts connected by thread = keeping in touch 📲', hook:'REN-RA-KU: "WHEN? RACK UP" — rack up calls to keep in contact! れんらく!', related:['電話','メール','知らせる'] }},
+];
+extraN4.forEach(w => vocab.N4.push(w));
+
+const extraN3 = [
+  { k:'目標', f:'もくひょう', r:'mokuhyou', m:'goal / target', pos:'noun',
+    origin:{ pictograph:'目 is the eye (目) — looking and aiming. 標 shows a tree (木) topped with a marker sign — a signpost you\'re aiming for. Your eye fixed on a signpost = your goal!', radicals:[{k:'目',m:'eye'},{k:'木',m:'tree'},{k:'示',m:'sign'}], literal:'Eye fixed on a distant signpost = aiming for your goal! 🎯', hook:'MOKU-HYOU: "Mock-YOU" — your goal mocks you until you achieve it! もくひょう!', related:['目的','達成','夢'] }},
+  { k:'理由', f:'りゆう', r:'riyuu', m:'reason / cause', pos:'noun',
+    origin:{ pictograph:'理 shows a jade gem (王) being polished (里) — bringing out the logical inner structure. 由 shows a vessel with something coming out from the top — the source, the origin. Logical source = reason!', radicals:[{k:'王',m:'gem/logic'},{k:'由',m:'origin/source'}], literal:'Polishing out the logic + finding the source = the reason why 🔍', hook:'RI-YUU: "REE-YOU" — the reason is because of YOU! りゆう!', related:['原因','理解','なぜ'] }},
+  { k:'結果', f:'けっか', r:'kekka', m:'result / outcome', pos:'noun',
+    origin:{ pictograph:'結 shows thread (糸) being tied in a knot (吉) — the final binding. 果 shows a tree (木) with fruit (田) on top — the fruit that results from growth. Tying up + bearing fruit = result!', radicals:[{k:'糸',m:'thread'},{k:'木',m:'tree'},{k:'田',m:'fruit'}], literal:'Thread tied in a knot + tree bearing fruit = the final outcome 🍎', hook:'KE-KKA: "CHECK! KA-ching!" — check the result, and ka-ching! けっか!', related:['原因','成果','影響'] }},
+  { k:'判断', f:'はんだん', r:'handan', m:'judgement / decision', pos:'noun',
+    origin:{ pictograph:'判 shows a knife (刀) cutting something in half (半) — dividing and discriminating. 断 shows an axe (斤) cutting threads (糸) — cutting off decisively. Cutting + severing = making a judgement!', radicals:[{k:'刀',m:'knife'},{k:'糸',m:'thread'},{k:'斤',m:'axe'}], literal:'A knife splitting things + an axe cutting through = decisive judgement ⚖️', hook:'HAN-DAN: "HAN DAN-ces" — Han Solo dances when he makes a judgement call! はんだん!', related:['決める','評価','判定'] }},
+  { k:'解決する', f:'かいけつする', r:'kaiketsu suru', m:'to solve', pos:'verb (suru)',
+    origin:{ pictograph:'解 shows a knife (刀) separating a cow (牛) horn (角) — cutting apart, loosening a bind. 決 shows water bursting through a dam. Together: untying the knot and breaking through = to solve!', radicals:[{k:'刀',m:'knife'},{k:'牛',m:'cow'},{k:'氵',m:'water'}], literal:'Cutting apart the tangle + water breaking free = problem solved! 🔓', hook:'KAI-KE-TSU: "KAY! Ke-TCHA!" — "Okay! Gotcha!" — problem solved! かいけつする!', related:['問題','対処','答える'] }},
+  { k:'参加する', f:'さんかする', r:'sanka suru', m:'to participate', pos:'verb (suru)',
+    origin:{ pictograph:'参 shows three stars (彡) above a person bowing (大) — originally "to visit a shrine or pay respects." 加 shows a mouth (口) adding force (力) — joining in and adding your strength. Visiting + adding force = participating!', radicals:[{k:'彡',m:'three stars'},{k:'力',m:'strength'},{k:'口',m:'mouth'}], literal:'Bowing to join + adding your strength = getting involved! 🙌', hook:'SAN-KA: "SUN-KA-ching!" — the sun shines when you join in! さんかする!', related:['加わる','出席','協力'] }},
+  { k:'比べる', f:'くらべる', r:'kuraberu', m:'to compare', pos:'verb (ru)',
+    origin:{ pictograph:'比 shows two people (人) standing side by side — two things placed next to each other for comparison. The simplest act of measurement: putting things side by side!', radicals:[{k:'人',m:'person (x2)'}], literal:'Two people standing next to each other = comparing side by side 👥', hook:'KU-RA-BE-RU: "Kura-BEAR-u" — compare two bears, which is bigger? くらべる!', related:['違い','同じ','差'] }},
+  { k:'続く', f:'つづく', r:'tsuzuku', m:'to continue', pos:'verb (u)',
+    origin:{ pictograph:'続 shows thread (糸) being sold/passed on (売) — thread being continuously extended and passed along. An unbroken thread = continuation!', radicals:[{k:'糸',m:'thread'},{k:'売',m:'sell/pass on'}], literal:'Thread that keeps getting passed along = something that goes on and on ➡️', hook:'TSU-ZU-KU: "Zoo-ZOOKU!" — the zoo zoo zoo keeps going on! つづく!', related:['継続','ずっと','連続'] }},
+  { k:'認める', f:'みとめる', r:'mitomeru', m:'to recognise / acknowledge', pos:'verb (ru)',
+    origin:{ pictograph:'認 shows a word (言) + endure/persevere (忍) — words that take patience and careful discernment. To recognise something takes careful observation and admitting what you see!', radicals:[{k:'言',m:'words'},{k:'忍',m:'endure/patience'}], literal:'Patient words + careful observation = recognising and admitting the truth 👁️', hook:'MI-TO-ME-RU: "ME TOO, ME RU!" — "Me too!" — acknowledging someone else\'s point! みとめる!', related:['認識','受け入れる','承認'] }},
+  { k:'具体的', f:'ぐたいてき', r:'gutaiteki', m:'concrete / specific', pos:'adj (na)',
+    origin:{ pictograph:'具 shows a container (目) with hands (廾) — holding real physical things. 体 is the body (体) — tangible, physical existence. 的 is a target (白+勺) — pointing precisely. Physical body + aimed at a target = concrete and specific!', radicals:[{k:'具',m:'tool/real'},{k:'体',m:'body'},{k:'的',m:'target'}], literal:'Real tools + a body + a bullseye = exactly specific! 🎯', hook:'GU-TAI-TEK-I: "GOO-TIE-TECH-ee" — GOOD tech is always concrete and specific! ぐたいてき!', related:['抽象的','明確','詳しい'] }},
+  { k:'自由', f:'じゆう', r:'jiyuu', m:'freedom', pos:'noun',
+    origin:{ pictograph:'自 shows a nose (nose was "self" in old script) — literally "oneself." 由 shows something flowing freely from a vessel — the source and flow. Being from oneself, flowing freely = freedom!', radicals:[{k:'自',m:'self/nose'},{k:'由',m:'origin/flow'}], literal:'Oneself + flowing freely from the source = liberty! 🕊️', hook:'JI-YUU: "GEE! YOU!" — "Gee, you\'re FREE!" じゆう!', related:['自立','解放','独立'] }},
+  { k:'厳しい', f:'きびしい', r:'kibishi', m:'strict / harsh', pos:'adj (i)',
+    origin:{ pictograph:'厳 shows a mountain (山) that is steep and imposing (敢+口) — nature at its most uncompromising and harsh. A steep, demanding mountain face = strictness!', radicals:[{k:'山',m:'mountain'},{k:'敢',m:'bold/dare'}], literal:'A harsh, steep mountain face that demands respect 🏔️', hook:'KI-BI-SHI-I: "KEY-BEE-SHE" — the key to the beehive is SHE, the strict queen bee! きびしい!', related:['厳格','激しい','難しい'] }},
+  { k:'細かい', f:'こまかい', r:'komakai', m:'detailed / fine', pos:'adj (i)',
+    origin:{ pictograph:'細 shows thread (糸) that is tiny (囟 — a fontanelle, small opening) — the thinnest, most delicate thread. 細い = thin; 細かい = made of fine, tiny details!', radicals:[{k:'糸',m:'thread'},{k:'囟',m:'small/delicate'}], literal:'The thinnest possible thread = extremely fine and detailed 🧵', hook:'KO-MA-KA-I: "COMMA-KAI!" — so many commas = so much detail! こまかい!', related:['詳しい','丁寧','精密'] }},
+  { k:'課題', f:'かだい', r:'kadai', m:'task / issue', pos:'noun',
+    origin:{ pictograph:'課 shows words (言) being tested or assigned (果) — like assignments being given out, word by word. 題 shows the head/top (頁) of something that must be addressed (是). Assigned words + addressing the problem = task!', radicals:[{k:'言',m:'words'},{k:'果',m:'result'},{k:'頁',m:'head/top'}], literal:'Words assigned + a problem to address = your task or homework 📝', hook:'KA-DAI: "Car DIE!" — the car died = that\'s your problem to solve! かだい!', related:['問題','宿題','仕事'] }},
+  { k:'状況', f:'じょうきょう', r:'joukyou', m:'situation / circumstances', pos:'noun',
+    origin:{ pictograph:'状 shows a dog (犬) in a specific shape — its form, its state. 況 shows water (氵) going somewhere specific (兄) — the flow and condition of things. The shape of things + how they\'re flowing = situation!', radicals:[{k:'犬',m:'dog/form'},{k:'氵',m:'water'},{k:'兄',m:'elder/direction'}], literal:'The shape of things + how they\'re flowing = the current state of affairs 🌊', hook:'JO-U-KYO: "SHOW! KYOTO!" — show me the situation in Kyoto! じょうきょう!', related:['状態','事情','環境'] }},
+];
+extraN3.forEach(w => vocab.N3.push(w));
+
+// Extra N2 words — full rich origin data
+const extraN2 = [
+  { k:'曖昧', f:'あいまい', r:'aimai', m:'vague / ambiguous', pos:'adj (na)',
+    origin:{ pictograph:'曖 shows the sun (日) hidden behind something (愛) — the sun obscured, giving unclear light. 昧 shows the sun (日) + not yet (未) — not yet fully bright, still dark. Two "unclear sun" kanji = total ambiguity!', radicals:[{k:'日',m:'sun'},{k:'愛',m:'obscure'},{k:'未',m:'not yet'}], literal:'A sun hidden twice over = murky, unclear, impossible to pin down 🌫️', hook:'AI-MAI: "AY! MY!" — "Ay, my answer is... well... kinda... maybe?" Total ambiguity! あいまい!', related:['明確','不明','はっきり'] }},
+  { k:'意識', f:'いしき', r:'ishiki', m:'consciousness / awareness', pos:'noun',
+    origin:{ pictograph:'意 shows the heart (心) + sound (音) — your inner voice speaking in the heart. 識 shows words (言) + a halberd (戠) — knowing something with sharp precision. Inner voice + sharp knowing = consciousness!', radicals:[{k:'心',m:'heart'},{k:'音',m:'sound'},{k:'言',m:'words'}], literal:'Your inner voice cutting sharply through thought = awareness 🧠', hook:'I-SHI-KI: "E-SHE-KEY" — the KEY to awareness is opening your inner self! いしき!', related:['無意識','自覚','認識'] }},
+  { k:'主張', f:'しゅちょう', r:'shuchou', m:'assertion / claim', pos:'noun',
+    origin:{ pictograph:'主 shows a flame on a lamp stand — the central, dominant light. 張 shows a bow (弓) being stretched taut — tension, strength, extension. A dominant force stretching outward = making a strong claim!', radicals:[{k:'主',m:'master/main'},{k:'弓',m:'bow'}], literal:'The main flame stretched like a taut bow = a bold assertion 💪', hook:'SHU-CHOU: "SHOE-CHOW" — stamp your shoe and CHOW down on your argument! しゅちょう!', related:['意見','議論','反論'] }},
+  { k:'傾向', f:'けいこう', r:'keikou', m:'tendency / trend', pos:'noun',
+    origin:{ pictograph:'傾 shows a person (人) tilting sideways — leaning in one direction. 向 shows a window opening one way — facing a direction. A person leaning + facing = having a tendency toward something!', radicals:[{k:'人',m:'person'},{k:'向',m:'direction'}], literal:'A person perpetually leaning the same way = a tendency or trend 📈', hook:'KEI-KOU: "KAY! GO!" — always trending the same direction! けいこう!', related:['傾き','流行','パターン'] }},
+  { k:'妥協', f:'だきょう', r:'dakyou', m:'compromise', pos:'noun',
+    origin:{ pictograph:'妥 shows a woman (女) + hand from above (爪) — to pacify, to settle. 協 shows three people working together — combined effort. Settling peacefully + working together = compromise!', radicals:[{k:'女',m:'woman'},{k:'爪',m:'hand'},{k:'力',m:'strength x3'}], literal:'Peaceful settling + three people cooperating = finding the middle ground 🤝', hook:'DA-KYOU: "DA! KYO!" — "DA! Let\'s cooperate TODAY!" — meeting in the middle! だきょう!', related:['折り合い','調整','妥協点'] }},
+  { k:'克服', f:'こくふく', r:'kokufuku', m:'to overcome', pos:'verb (suru)',
+    origin:{ pictograph:'克 shows a person carrying a heavy load on their head — bearing a burden with effort and eventually overcoming it. 服 shows a person bowing and submitting — but here YOU make it submit to you!', radicals:[{k:'十',m:'burden'},{k:'儿',m:'person'},{k:'服',m:'submit'}], literal:'Bearing a load + making it submit = conquering and overcoming! ⚔️', hook:'KO-KU-FU-KU: "CONQUER-FUKU!" — conquer your weakness with good fortune! こくふく!', related:['乗り越える','打ち勝つ','達成'] }},
+  { k:'批判', f:'ひはん', r:'hihan', m:'criticism / critique', pos:'noun',
+    origin:{ pictograph:'批 shows a hand (扌) striking and comparing. 判 shows a knife (刀) cutting things in half (半) — dividing, making a decisive cut. Striking comparison + decisive cut = criticism!', radicals:[{k:'扌',m:'hand'},{k:'比',m:'compare'},{k:'刀',m:'knife'}], literal:'A hand comparing + a knife dividing = sharp, decisive criticism ✂️', hook:'HI-HAN: "HEE-HAN!" — a donkey braying = a critic who never stops! ひはん!', related:['批評','評価','非難'] }},
+  { k:'根拠', f:'こんきょ', r:'konkyo', m:'basis / grounds / evidence', pos:'noun',
+    origin:{ pictograph:'根 shows a tree (木) with its roots (艮) — the foundation of something. 拠 shows a hand (扌) gripping a perch firmly. Deep roots + firm grip = the solid basis of an argument!', radicals:[{k:'木',m:'tree'},{k:'艮',m:'root'},{k:'扌',m:'hand'}], literal:'Tree roots gripped firmly = the solid foundation of a claim 🌳', hook:'KON-KYO: "CON-KYO!" — every argument needs its basis! こんきょ!', related:['根本','理由','証拠'] }},
+];
+extraN2.forEach(w => vocab.N2.push(w));
+
+// Extra N1 words — full rich origin data
+const extraN1 = [
+  { k:'瑣末', f:'さまつ', r:'samatsu', m:'trivial / petty details', pos:'adj (na)',
+    origin:{ pictograph:'瑣 shows jade (王) fragmented into tiny pieces — precious stone broken into worthless chips. 末 shows a tree (木) with emphasis on the TIP — the very end, the least important part. Jade dust + tree tips = the most trivial things imaginable!', radicals:[{k:'王',m:'jade'},{k:'木',m:'tree'},{k:'末',m:'tip/end'}], literal:'Scattered jade dust + tree tips = petty, insignificant trifles 🍃', hook:'SA-MA-TSU: "SAMA-TSU!" — even a lord (sama) fusses over tiny (tsu) things! さまつ!', related:['些細','枝葉末節','重要'] }},
+  { k:'慟哭', f:'どうこく', r:'doukoku', m:'wailing / loud lamenting', pos:'noun',
+    origin:{ pictograph:'慟 shows the heart (心) being violently shaken (動) — an emotion so strong it physically moves you. 哭 shows a mouth (口) + a dog (犬) — the raw, animal sound of grief, like a howl. A shaken heart + an animal howl = wailing grief!', radicals:[{k:'心',m:'heart'},{k:'動',m:'move'},{k:'口',m:'mouth'},{k:'犬',m:'dog'}], literal:'A violently shaken heart + a howling mouth = the deepest, loudest grief 😢', hook:'DOU-KOKU: "DOH! KOKORO!" — "DOH! My heart!" — the cry of pure raw grief! どうこく!', related:['嘆く','悲嘆','号泣'] }},
+  { k:'蹉跎', f:'さた', r:'sata', m:'letting time slip by / stagnation', pos:'noun',
+    origin:{ pictograph:'蹉 shows a foot (足) slipping — your foot sliding, losing ground. 跎 shows a foot (足) stumbling — tripping without going anywhere. Two slipping, stumbling feet = a life spent stagnating!', radicals:[{k:'足',m:'foot (x2)'}], literal:'Two feet slipping and stumbling = watching time pass while going nowhere ⏳', hook:'SA-TA: "SAY TA-ta!" — keep saying goodbye to your opportunities! さた!', related:['時間を無駄にする','停滞','空白'] }},
+  { k:'刹那', f:'せつな', r:'setsuna', m:'a moment / an instant', pos:'noun',
+    origin:{ pictograph:'刹 shows a knife (刀) next to a tree (木) — cutting something cleanly and instantly. 那 is a phonetic Sanskrit import meaning "that." Together the Buddhist term for the smallest unit of time — a snap of the fingers!', radicals:[{k:'刀',m:'knife'},{k:'木',m:'tree'}], literal:'A knife-clean instant = the briefest possible moment ⚡', hook:'SE-TSU-NA: "SET-SU-NA!" — set your timer and NA! It\'s already gone! せつな!', related:['瞬間','一瞬','刹那主義'] }},
+  { k:'葛藤', f:'かっとう', r:'kattou', m:'inner conflict / discord', pos:'noun',
+    origin:{ pictograph:'葛 shows a plant (艹) that creeps and tangles — the kudzu vine that wraps around everything. 藤 shows wisteria, also a climbing vine. Two tangled climbing vines = inner conflict wrapped around your heart!', radicals:[{k:'艹',m:'plant (x2)'}], literal:'Two vines tangled around each other = the inner conflict of two desires 🌿', hook:'KA-T-TOU: "CAUGHT-OH!" — you\'re CAUGHT between two things! かっとう!', related:['矛盾','ジレンマ','悩み'] }},
+  { k:'謙虚', f:'けんきょ', r:'kenkyo', m:'humble / modest', pos:'adj (na)',
+    origin:{ pictograph:'謙 shows words (言) that are restrained and measured — speech that pulls back, does not over-claim. 虚 shows a tiger shell with an empty inside — an empty vessel, not puffed up. Restrained speech + empty inside = true humility!', radicals:[{k:'言',m:'words'},{k:'虍',m:'tiger'},{k:'业',m:'empty'}], literal:'Restrained words + an empty vessel = true humble modesty 🙏', hook:'KEN-KYO: "KEN is KYO-ol!" — Ken is cool because he stays humbly quiet! けんきょ!', related:['謙遜','控えめ','傲慢'] }},
+];
+extraN1.forEach(w => vocab.N1.push(w));
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+const SESSION_SIZE = 15;
+let currentLevel = 'N5', currentMode = 'meaning';
+let pool = [], qIdx = 0, score = 0, lives = 3, results = [];
+let answered = false;
+let currentEntry = null;
+
+// ─────────────────────────────────────────────
+// HOME UI
+// ─────────────────────────────────────────────
+function loadHomeQuote() {
+  const q = animeQuotes[Math.floor(Math.random() * animeQuotes.length)];
+  document.getElementById('homeQuoteJP').textContent = q.jp;
+  document.getElementById('homeQuoteEN').textContent = q.en;
+  document.getElementById('homeQuoteSRC').textContent = q.src;
+}
+
+function selectLevel(el) {
+  soundClick();
+  document.querySelectorAll('.level-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  currentLevel = el.dataset.level;
+}
+
+function selectMode(el) {
+  soundClick();
+  document.querySelectorAll('.mode-pill').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+  currentMode = el.dataset.mode;
+}
+
+function goHome() {
+  showScreen('homeScreen');
+  loadHomeQuote();
+  initHomeUI();
+}
+
+// ─────────────────────────────────────────────
+// GAME FLOW
+// ─────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startGame() {
+  qIdx = 0; score = 0; lives = 3; results = []; answered = false; _sessionXP = 0;
+  pool = shuffle([...vocab[currentLevel]]).slice(0, SESSION_SIZE);
+
+  const lv = currentLevel;
+  document.getElementById('progFill').style.background = `linear-gradient(90deg, ${lvlColor[lv]}, #f39c12)`;
+  document.getElementById('gtLevel').textContent = `JLPT ${lv}`;
+  document.getElementById('gtLevel').style.color = lvlColor[lv];
+  document.getElementById('gtRank').textContent = lvlRanks[lv];
+
+  showScreen('gameScreen');
+  updateXpHUD();
+  renderQ();
+}
+
+function nextQ() {
+  // Save progress mid-session
+  saveInProgressSession(currentLevel, currentMode, pool, qIdx+1, score, lives, results);
+  qIdx++;
+  if (qIdx >= pool.length || lives <= 0) { endGame(); return; }
+  answered = false;
+  const card = document.getElementById('qCard');
+  card.style.animation = 'none'; void card.offsetWidth;
+  card.style.animation = 'fadeUp .4s ease both';
+  renderQ();
+}
+
+// ─────────────────────────────────────────────
+// QUESTION RENDERING
+// ─────────────────────────────────────────────
+function renderQ() {
+  answered = false;
+  currentEntry = pool[qIdx];
+  const total = pool.length;
+  document.getElementById('gtProg') && (document.getElementById('gtProg') ? null : null);
+  document.getElementById('gtScore').textContent = score;
+  document.getElementById('gtLives').textContent = '❤️'.repeat(Math.max(0,lives)) + '🖤'.repeat(3-Math.max(0,lives));
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').className = 'next-btn';
+  document.getElementById('senseiQuote').className = 'sensei-quote';
+  document.getElementById('answerArea').innerHTML = '';
+  document.getElementById('progFill').style.width = `${(qIdx/total)*100}%`;
+
+  if (currentMode === 'meaning') renderMeaning(currentEntry);
+  else if (currentMode === 'reading') renderReading(currentEntry);
+  else if (currentMode === 'fill') renderFill(currentEntry);
+  else renderFlash(currentEntry);
+}
+
+function wordHeader(entry) {
+  return `
+    <div class="word-header">
+      <div class="kanji-display">${entry.k}</div>
+      <div class="furigana-display">${entry.f}</div>
+      <div class="romaji-display">${entry.r} · ${entry.pos}</div>
+      <button class="origin-btn" onclick="openOrigin()" title="Kanji Origin">⛩️</button>
+    </div>`;
+}
+
+function renderMeaning(entry) {
+  document.getElementById('qTag').textContent = '📘 What does this mean?';
+  document.getElementById('answerArea').innerHTML = wordHeader(entry) + `<div class="opts-grid" id="optGrid"></div>`;
+  const distractors = shuffle(pool.filter(e=>e!==entry)).slice(0,3);
+  shuffle([entry,...distractors]).forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className='opt-btn'; btn.textContent=opt.m;
+    btn.onclick=()=>handleMCQ(btn, opt===entry, entry, document.getElementById('optGrid'));
+    document.getElementById('optGrid').appendChild(btn);
+  });
+}
+
+function renderReading(entry) {
+  document.getElementById('qTag').textContent = '📖 Choose the correct reading';
+  document.getElementById('answerArea').innerHTML = wordHeader(entry).replace(entry.f,'???').replace(entry.r,'???') +
+    `<div style="font-size:.82rem;font-weight:600;text-align:center;margin-bottom:16px;color:var(--stone)">Which reading is correct?</div>
+    <div class="opts-grid" id="optGrid"></div>`;
+  const distractors = shuffle(pool.filter(e=>e!==entry)).slice(0,3);
+  shuffle([entry,...distractors]).forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className='opt-btn';
+    btn.innerHTML=`${opt.f}<br><small style="font-weight:500;color:#aaa">${opt.r}</small>`;
+    btn.onclick=()=>handleMCQ(btn, opt===entry, entry, document.getElementById('optGrid'));
+    document.getElementById('optGrid').appendChild(btn);
+  });
+}
+
+function handleMCQ(btn, correct, entry, grid) {
+  if (answered) return;
+  answered = true;
+  Array.from(grid.querySelectorAll('.opt-btn')).forEach(b=>b.disabled=true);
+  if (correct) {
+    btn.classList.add('correct');
+    const pts = getPoints();
+    score += pts; results.push(true);
+    soundCorrect();
+    showXpPop(pts * 0.5, btn);
+    showFeedback(true, `✅ Correct! <b>${entry.k}</b> = "${entry.m}"`);
+  } else {
+    btn.classList.add('wrong'); lives--;
+    results.push(false);
+    soundWrong();
+    Array.from(grid.querySelectorAll('.opt-btn')).forEach(b => {
+      if (b.textContent===entry.m || b.innerHTML.includes(entry.f)) b.classList.add('correct');
+    });
+    showFeedback(false, `❌ Answer: <b>${entry.k}</b> = "${entry.m}"`);
+    showSenseiQuote();
+  }
+  updateHUD();
+  updateXpHUD();
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function renderFill(entry) {
+  document.getElementById('qTag').textContent = '✏️ Type the English meaning';
+  document.getElementById('answerArea').innerHTML = wordHeader(entry) + `
+    <div class="fill-wrap">
+      <input class="fill-inp" id="fillInp" placeholder="Type the meaning in English…" autocomplete="off">
+      <button class="fill-sub" onclick="checkFill()">Check ✓</button>
+    </div>`;
+  window._fillEntry = entry;
+  document.getElementById('fillInp').addEventListener('keydown', e=>{ if(e.key==='Enter') checkFill(); });
+  setTimeout(()=>document.getElementById('fillInp').focus(), 100);
+}
+
+function checkFill() {
+  if (answered) return;
+  const entry = window._fillEntry;
+  const val = document.getElementById('fillInp').value.trim().toLowerCase();
+  const keywords = entry.m.toLowerCase().split(/[\s\/]+/).filter(w=>w.length>2);
+  const correct = keywords.some(kw=>val.includes(kw));
+  answered = true;
+  document.getElementById('fillInp').disabled = true;
+  document.querySelector('.fill-sub').disabled = true;
+  if (correct) {
+    document.getElementById('fillInp').classList.add('correct');
+    const pts = getPoints();
+    score += pts; results.push(true);
+    soundCorrect();
+    showXpPop(pts * 0.5);
+    showFeedback(true, `✅ Correct! Full meaning: "${entry.m}"`);
+  } else {
+    document.getElementById('fillInp').classList.add('wrong');
+    lives--; results.push(false);
+    soundWrong();
+    showFeedback(false, `❌ The meaning is: <b>"${entry.m}"</b>`);
+    showSenseiQuote();
+  }
+  updateHUD();
+  updateXpHUD();
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function renderFlash(entry) {
+  document.getElementById('qTag').textContent = '🃏 Tap the card to flip';
+  document.getElementById('answerArea').innerHTML = `
+    <div class="flashcard-scene" onclick="flipCard()">
+      <div class="flashcard" id="flashCard">
+        <div class="card-face">
+          <div class="kanji-display">${entry.k}</div>
+          <div class="furigana-display">${entry.f}</div>
+          <div class="romaji-display">${entry.r}</div>
+          <div class="flip-hint">Tap to reveal meaning ↓</div>
+          <button class="origin-btn" style="position:relative;margin-top:10px" onclick="event.stopPropagation();openOrigin()">⛩️ Origin</button>
+        </div>
+        <div class="card-face card-back">
+          <div style="font-family:'Noto Serif JP',serif;font-size:1rem;color:#99f6e4;margin-bottom:8px">${entry.k}</div>
+          <div style="font-size:1.4rem;font-weight:700;margin-bottom:8px">${entry.m}</div>
+          <div style="font-size:0.78rem;color:#94a3b8">${entry.pos}</div>
+        </div>
+      </div>
+    </div>
+    <div class="flashcard-btns" id="fcBtns" style="display:none">
+      <button class="fc-btn fc-miss" onclick="flashAnswer(false)">✗ Didn't know</button>
+      <button class="fc-btn fc-got" onclick="flashAnswer(true)">✓ Got it!</button>
+    </div>`;
+  window._flashEntry = entry;
+}
+
+function flipCard() {
+  const card = document.getElementById('flashCard');
+  card.classList.toggle('flipped');
+  if (card.classList.contains('flipped')) document.getElementById('fcBtns').style.display='flex';
+}
+
+function flashAnswer(correct) {
+  if (answered) return;
+  answered = true;
+  const entry = window._flashEntry;
+  document.querySelectorAll('.fc-btn').forEach(b=>b.disabled=true);
+  if (correct) {
+    const pts = getPoints();
+    score += pts; results.push(true);
+    soundCorrect();
+    showXpPop(pts * 0.5);
+    showFeedback(true, `✅ ${entry.k} = "${entry.m}"`);
+  } else {
+    lives--; results.push(false);
+    soundWrong();
+    showFeedback(false, `📖 ${entry.k} (${entry.f}) = "${entry.m}"`);
+    showSenseiQuote();
+  }
+  updateHUD();
+  updateXpHUD();
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+// ─────────────────────────────────────────────
+// SENSEI WRONG-ANSWER QUOTES
+// ─────────────────────────────────────────────
+function showSenseiQuote() {
+  const q = senseiQuotes[Math.floor(Math.random() * senseiQuotes.length)];
+  document.getElementById('senseiText').textContent = q.text;
+  document.getElementById('senseiSrc').textContent = q.src;
+  document.getElementById('senseiQuote').className = 'sensei-quote show';
+}
+
+// ─────────────────────────────────────────────
+// ORIGIN PANEL
+// ─────────────────────────────────────────────
+function openOrigin() {
+  const entry = currentEntry;
+  if (!entry) return;
+  const o = entry.origin;
+
+  document.getElementById('opWord').textContent = entry.k;
+  document.getElementById('opReading').textContent = `${entry.f} (${entry.r}) · ${entry.pos}`;
+  document.getElementById('opPictograph').innerHTML = o.pictograph;
+  document.getElementById('opLiteral').innerHTML = o.literal;
+  document.getElementById('opHook').innerHTML = o.hook;
+
+  const radEl = document.getElementById('opRadicals');
+  radEl.innerHTML = '';
+  (o.radicals || []).forEach(r => {
+    const pill = document.createElement('div');
+    pill.className = 'radical-pill';
+    pill.innerHTML = `<span class="rp-kanji">${r.k}</span><span class="rp-mean">${r.m}</span>`;
+    radEl.appendChild(pill);
+  });
+
+  const relEl = document.getElementById('opRelated');
+  relEl.innerHTML = '';
+  (o.related || []).forEach(r => {
+    const chip = document.createElement('div');
+    chip.className = 'related-chip';
+    chip.textContent = r;
+    relEl.appendChild(chip);
+  });
+
+  document.getElementById('originOverlay').classList.add('show');
+}
+
+function closeOrigin(e) {
+  if (e.target === document.getElementById('originOverlay')) closeOriginBtn();
+}
+function closeOriginBtn() {
+  document.getElementById('originOverlay').classList.remove('show');
+}
+
+// ─────────────────────────────────────────────
+// EMAIL MODAL
+// ─────────────────────────────────────────────
+let emailShown = false;
+function maybeShowEmail() {
+  if (!emailShown && !localStorage.getItem('jlpt_email_shown')) {
+    emailShown = true;
+    setTimeout(() => document.getElementById('emailModal').classList.add('show'), 800);
+  }
+}
+function handleEmailSignup() {
+  localStorage.setItem('jlpt_email_shown', 'true');
+  document.getElementById('emailModal').classList.remove('show');
+}
+function closeEmail() {
+  localStorage.setItem('jlpt_email_shown', 'true');
+  document.getElementById('emailModal').classList.remove('show');
+}
+
+// ─────────────────────────────────────────────
+// SCORE SCREEN
+// ─────────────────────────────────────────────
+function endGame() {
+  // Save word progress + streak + XP
+  const earned = recordSession(currentLevel, pool, results);
+  showScreen('scoreScreen');
+  maybeShowEmail();
+
+  const correct = results.filter(Boolean).length;
+  const total = results.length;
+  const pct = total > 0 ? correct/total : 0;
+
+  let jp, en, sub;
+  if (pct===1)     {jp='完璧！'; en='Perfect Score!';   sub='Flawless. You\'re ready for the real exam!';}
+  else if(pct>=.8) {jp='素晴らしい！'; en='Excellent!'; sub='Outstanding! Keep this pace and you\'ll pass.';}
+  else if(pct>=.6) {jp='良い！'; en='Good Work!';       sub='Solid effort — review the ones you missed.';}
+  else if(pct>=.4) {jp='頑張れ！'; en='Keep Going!';    sub='Don\'t stop — every attempt makes you stronger.';}
+  else             {jp='復習！'; en='Review Time!';      sub='Start with the basics and build your way up!';}
+
+  document.getElementById('scoreJP').textContent = jp;
+  document.getElementById('scoreEN').textContent = en;
+  document.getElementById('scoreNum').textContent = correct;
+  document.getElementById('scoreDenom').textContent = `/ ${total} correct`;
+  document.getElementById('scoreSub').textContent = sub;
+  document.getElementById('dotsRow').innerHTML = results.map(r=>`<div class="dot ${r?'hit':'miss'}">${r?'✅':'❌'}</div>`).join('');
+
+  // XP Summary
+  const p = getProgress();
+  const prog = getXpProgress(p.totalXP || 0);
+  const isPerfect = correct === total && total > 0;
+  document.getElementById('sxpTitle').textContent = isPerfect
+    ? `🏆 Perfect Bonus included!`
+    : `${prog.current.badge} ${prog.current.name} — ${prog.inRank} / ${prog.next ? prog.rankTotal : '∞'} XP to next rank`;
+  document.getElementById('sxpSub').textContent = `Total XP: ${p.totalXP || 0} · Streak: 🔥${p.streak || 0}`;
+  document.getElementById('sxpTotal').textContent = `+${earned}`;
+
+  const q = animeQuotes[Math.floor(Math.random() * animeQuotes.length)];
+  document.getElementById('sqJP').textContent = q.jp;
+  document.getElementById('sqEN').textContent = q.en;
+  document.getElementById('sqSRC').textContent = q.src;
+}
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+function getPoints() { return {N5:10,N4:15,N3:20,N2:30,N1:50}[currentLevel]||10; }
+function updateHUD() {
+  document.getElementById('gtScore').textContent = score;
+  document.getElementById('gtLives').textContent = '❤️'.repeat(Math.max(0,lives)) + '🖤'.repeat(3-Math.max(0,lives));
+}
+function showFeedback(good, msg) {
+  const fb = document.getElementById('feedback');
+  fb.className = `feedback show ${good?'good':'bad'}`;
+  fb.innerHTML = msg;
+  // Add share word button on correct answers
+  if (good && currentEntry) {
+    const shareBtn = document.createElement('button');
+    shareBtn.className = 'share-word-btn';
+    shareBtn.innerHTML = '🔗 Share This Word';
+    const entry = currentEntry;
+    shareBtn.onclick = () => shareWord(entry.k, entry.f, entry.m);
+    fb.appendChild(document.createElement('br'));
+    fb.appendChild(shareBtn);
+  }
+}
+function shuffle(arr) {
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+// ─────────────────────────────────────────────
+// FLOATING KANJI CANVAS BACKGROUND
+// ─────────────────────────────────────────────
+const kanjiChars = ['水','火','山','川','木','日','月','風','雨','海','空','花','星','心','夢','力','道','光','影','剣','魂','愛','勇','智','武','忍','侍','鬼','龍','神','漢','語','字','本','学','読','書','話','聴','見'];
+
+function initCanvas() {
+  const canvas = document.getElementById('kanjiCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function Particle() {
+    this.reset = function() {
+      this.x = Math.random() * W;
+      this.y = Math.random() * H + H;
+      this.size = Math.random() * 28 + 14;
+      this.speed = Math.random() * 0.4 + 0.15;
+      this.drift = (Math.random() - 0.5) * 0.3;
+      this.opacity = Math.random() * 0.6 + 0.2;
+      this.char = kanjiChars[Math.floor(Math.random() * kanjiChars.length)];
+      this.rotation = (Math.random() - 0.5) * 0.4;
+      this.rotSpeed = (Math.random() - 0.5) * 0.003;
+    };
+    this.reset();
+    this.y = Math.random() * H; // start spread across screen
+  }
+
+  resize();
+  for (let i = 0; i < 28; i++) particles.push(new Particle());
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = `bold ${particles[0]?.size || 20}px 'Noto Serif JP', serif`;
+    particles.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation);
+      ctx.globalAlpha = p.opacity;
+      ctx.fillStyle = '#c0392b';
+      ctx.font = `bold ${p.size}px 'Noto Serif JP', serif`;
+      ctx.fillText(p.char, 0, 0);
+      ctx.restore();
+      p.y -= p.speed;
+      p.x += p.drift;
+      p.rotation += p.rotSpeed;
+      if (p.y < -60) p.reset();
+    });
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  draw();
+}
+
+// ─────────────────────────────────────────────
+// SOUND ENGINE (Web Audio API — no files needed)
+// ─────────────────────────────────────────────
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playTone(freq, type, duration, volume = 0.18, delay = 0) {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = type; osc.frequency.value = freq;
+    const t = ctx.currentTime + delay;
+    gain.gain.setValueAtTime(volume, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    osc.start(t); osc.stop(t + duration);
+  } catch(e) {}
+}
+function soundCorrect() {
+  playTone(523, 'sine', 0.12, 0.15);       // C5
+  playTone(659, 'sine', 0.12, 0.15, 0.09); // E5
+  playTone(784, 'sine', 0.18, 0.2, 0.17);  // G5
+}
+function soundWrong() {
+  playTone(220, 'sawtooth', 0.15, 0.12);
+  playTone(180, 'sawtooth', 0.15, 0.12, 0.12);
+}
+function soundLevelUp() {
+  [523,587,659,698,784].forEach((f,i) => playTone(f,'sine',0.25,0.18,i*0.1));
+}
+function soundClick() {
+  playTone(440, 'sine', 0.06, 0.07);
+}
+function soundXP() {
+  playTone(880, 'sine', 0.08, 0.1);
+  playTone(1047,'sine', 0.08, 0.1, 0.06);
+}
+
+// ─────────────────────────────────────────────
+// XP SYSTEM
+// ─────────────────────────────────────────────
+const XP_RANKS = [
+  { name:'Genin',       badge:'🥋', min:0    },
+  { name:'Chunin',      badge:'⚔️', min:200  },
+  { name:'Jonin',       badge:'🗡️', min:500  },
+  { name:'ANBU',        badge:'👁️', min:1000 },
+  { name:'Kage',        badge:'🌟', min:2000 },
+  { name:'Hokage',      badge:'🏯', min:4000 },
+  { name:'Legendary',   badge:'🐉', min:7000 },
+];
+const XP_PER_LEVEL = [200, 300, 500, 1000, 2000, 3000, 3000];
+
+function getXpRank(totalXp) {
+  let rank = XP_RANKS[0];
+  for (const r of XP_RANKS) { if (totalXp >= r.min) rank = r; else break; }
+  return rank;
+}
+function getXpProgress(totalXp) {
+  let rankIdx = 0;
+  for (let i = 0; i < XP_RANKS.length; i++) { if (totalXp >= XP_RANKS[i].min) rankIdx = i; else break; }
+  const current = XP_RANKS[rankIdx];
+  const next = XP_RANKS[rankIdx + 1];
+  if (!next) return { pct: 100, current, next: null, inRank: totalXp - current.min, rankTotal: 999999 };
+  const inRank = totalXp - current.min;
+  const rankTotal = next.min - current.min;
+  return { pct: Math.round((inRank / rankTotal) * 100), current, next, inRank, rankTotal };
+}
+
+function calcSessionXP(results, level) {
+  const lvlBonus = { N5:1, N4:1.2, N3:1.5, N2:2, N1:3 };
+  const mult = lvlBonus[level] || 1;
+  let xp = 0;
+  const correct = results.filter(Boolean).length;
+  xp += correct * 10 * mult;
+  if (correct === results.length && results.length > 0) xp += 50 * mult; // perfect bonus
+  return Math.round(xp);
+}
+
+let _sessionXP = 0; // XP earned this session
+
+function updateXpHUD() {
+  const p = getProgress();
+  const totalXp = p.totalXP || 0;
+  const prog = getXpProgress(totalXp);
+  document.getElementById('xpRankBadge').textContent = prog.current.badge;
+  document.getElementById('xpRankName').textContent = prog.current.name;
+  document.getElementById('xpLabel').textContent = prog.next
+    ? `${prog.inRank} / ${prog.rankTotal} XP`
+    : `${totalXp} XP MAX`;
+  document.getElementById('xpBarFill').style.width = prog.pct + '%';
+  const streak = p.streak || 0;
+  document.getElementById('xpStreakDisplay').textContent = streak > 0 ? `🔥${streak}` : '🔥0';
+}
+
+function showXpPop(amount, el) {
+  const pop = document.createElement('div');
+  pop.className = 'xp-pop';
+  pop.textContent = `+${Math.round(amount)} XP`;
+  const rect = (el || document.getElementById('qCard')).getBoundingClientRect();
+  pop.style.left = (rect.left + rect.width/2 - 30) + 'px';
+  pop.style.top = (rect.top + 60) + 'px';
+  document.body.appendChild(pop);
+  setTimeout(() => pop.remove(), 1300);
+}
+
+function checkRankUp(oldXp, newXp) {
+  const oldRank = getXpRank(oldXp);
+  const newRank = getXpRank(newXp);
+  if (newRank.name !== oldRank.name) {
+    soundLevelUp();
+    const toast = document.createElement('div');
+    toast.className = 'levelup-toast';
+    toast.textContent = `${newRank.badge} Rank Up! You are now ${newRank.name}!`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2700);
+  }
+}
+
+// ─────────────────────────────────────────────
+// PERSISTENCE — localStorage helpers (UPDATED with XP)
+// ─────────────────────────────────────────────
+function getProgress() {
+  const raw = localStorage.getItem('jlpt_progress');
+  const defaults = {
+    seenWords: { N5:[], N4:[], N3:[], N2:[], N1:[] },
+    streak: 0,
+    lastVisit: null,
+    totalSessions: 0,
+    totalXP: 0,
+    savedSession: null
+  };
+  return raw ? Object.assign(defaults, JSON.parse(raw)) : defaults;
+}
+
+function saveProgress(p) {
+  localStorage.setItem('jlpt_progress', JSON.stringify(p));
+}
+
+function recordSession(lv, wordsStudied, sessionResults) {
+  const p = getProgress();
+  const today = new Date().toISOString().slice(0,10);
+  const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+
+  // Update streak
+  if (p.lastVisit === yesterday) p.streak = (p.streak||0) + 1;
+  else if (p.lastVisit !== today) p.streak = 1;
+  p.lastVisit = today;
+  p.totalSessions = (p.totalSessions||0) + 1;
+
+  // Mark words as seen
+  wordsStudied.forEach(w => {
+    if (!p.seenWords[lv].includes(w.k)) p.seenWords[lv].push(w.k);
+  });
+
+  // Award XP
+  const earned = calcSessionXP(sessionResults || [], lv);
+  const oldXp = p.totalXP || 0;
+  p.totalXP = oldXp + earned;
+  _sessionXP = earned;
+
+  p.savedSession = null;
+  saveProgress(p);
+
+  // Check rank up after save
+  setTimeout(() => checkRankUp(oldXp, p.totalXP), 800);
+  return earned;
+}
+
+function saveInProgressSession(lv, mode, poolWords, qIdx, score, lives, results) {
+  const p = getProgress();
+  p.savedSession = { lv, mode, poolKeys: poolWords.map(w=>w.k), qIdx, score, lives, results };
+  saveProgress(p);
+}
+
+// ─────────────────────────────────────────────
+// HOME UI — welcome back + progress bars
+// ─────────────────────────────────────────────
+function initHomeUI() {
+  const p = getProgress();
+  const today = new Date().toISOString().slice(0,10);
+  const isReturning = p.lastVisit && p.lastVisit !== today || p.totalSessions > 0;
+
+  // Welcome back banner
+  if (isReturning) {
+    const wb = document.getElementById('welcomeBack');
+    wb.classList.add('show');
+    const rank = getXpRank(p.totalXP || 0);
+    document.getElementById('wbTitle').textContent = p.streak > 2
+      ? `🔥 ${p.streak}-day streak — keep going!`
+      : `Welcome back, ${rank.name}!`;
+    const total = Object.values(p.seenWords).reduce((a,b)=>a+b.length,0);
+    document.getElementById('wbSub').textContent = `${total} words studied · ${p.totalSessions} sessions · ⭐ ${p.totalXP || 0} XP total`;
+    document.getElementById('wbStreak').textContent = p.streak > 0 ? `🔥${p.streak}` : '';
+  }
+
+  // Continue bar — if there's a saved mid-session
+  if (p.savedSession) {
+    const cb = document.getElementById('continueBar');
+    cb.classList.add('show');
+    const s = p.savedSession;
+    document.getElementById('cbTitle').textContent = `📚 Resume JLPT ${s.lv} — ${s.mode} mode`;
+    document.getElementById('cbSub').textContent = `Question ${s.qIdx+1} of ${s.poolKeys.length} · Score: ⭐${s.score}`;
+  }
+
+  // Progress bars + word counts
+  ['N5','N4','N3','N2','N1'].forEach(lv => {
+    const seen = p.seenWords[lv]?.length || 0;
+    const total = vocab[lv]?.length || 50;
+    const pct = Math.min(100, Math.round((seen/total)*100));
+    const barEl = document.getElementById(`bar-${lv}`);
+    const seenEl = document.getElementById(`seen-${lv}`);
+    if (barEl) setTimeout(() => barEl.style.width = pct+'%', 300);
+    if (seenEl) seenEl.textContent = `${seen} studied`;
+    // Update total count label
+    const labels = document.querySelectorAll(`[data-level="${lv}"] .level-stat-label span:last-child`);
+    labels.forEach(el => el.textContent = `${total} words`);
+  });
+}
+
+// ─────────────────────────────────────────────
+// CONTINUE SESSION
+// ─────────────────────────────────────────────
+function continueSession() {
+  const p = getProgress();
+  const s = p.savedSession;
+  if (!s) return;
+
+  currentLevel = s.lv;
+  currentMode = s.mode;
+  qIdx = s.qIdx;
+  score = s.score;
+  lives = s.lives;
+  results = s.results;
+  answered = false;
+
+  // Rebuild pool from keys
+  const allWords = vocab[currentLevel];
+  pool = s.poolKeys.map(k => allWords.find(w=>w.k===k)).filter(Boolean);
+  if (pool.length === 0) { startGame(); return; }
+
+  // Update header
+  document.getElementById('progFill').style.background = `linear-gradient(90deg, ${lvlColor[currentLevel]}, #f39c12)`;
+  document.getElementById('gtLevel').textContent = `JLPT ${currentLevel}`;
+  document.getElementById('gtLevel').style.color = lvlColor[currentLevel];
+  document.getElementById('gtRank').textContent = lvlRanks[currentLevel];
+
+  // Select matching level card
+  document.querySelectorAll('.level-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.level === currentLevel);
+  });
+
+  showScreen('gameScreen');
+  renderQ();
+}
+
+// ─────────────────────────────────────────────
+// SHARE SYSTEM
+// ─────────────────────────────────────────────
+const SITE_URL = window.location.href.split('?')[0];
+let _shareText = '';
+
+function openShareModal(text, icon = '📤', title = 'Share') {
+  _shareText = text;
+  document.getElementById('shareModalIcon').textContent = icon;
+  document.getElementById('shareModalTitle').textContent = title;
+  document.getElementById('shareTextPreview').textContent = text;
+  document.getElementById('copyLinkBtn').textContent = '🔗 Copy Link';
+  document.getElementById('copyLinkBtn').classList.remove('copied');
+  document.getElementById('shareModal').classList.add('show');
+}
+
+function closeShareModal(e) {
+  if (!e || e.target === document.getElementById('shareModal')) {
+    document.getElementById('shareModal').classList.remove('show');
+  }
+}
+
+function shareApp() {
+  const text = `🇯🇵 Learn Japanese the anime way — JLPT Vocabulary Master is free forever! Quiz, flashcards, and kanji memory hooks for N5 to N1. Try it: ${SITE_URL}`;
+  if (navigator.share) {
+    navigator.share({ title: 'JLPT Vocabulary Master', text: text, url: SITE_URL }).catch(() => {});
+    return;
+  }
+  openShareModal(text, '🔗', 'Share This App');
+}
+
+function shareScore() {
+  const correct = results.filter(Boolean).length;
+  const total = results.length;
+  const pct = Math.round((correct / total) * 100);
+  const emoji = pct >= 90 ? '🏆' : pct >= 70 ? '🎌' : pct >= 50 ? '✨' : '📖';
+  const text = `${emoji} I scored ${correct}/${total} (${pct}%) on JLPT ${currentLevel} in Vocabulary Master 🇯🇵🔥\nCan you beat me? Try it free: ${SITE_URL}`;
+  if (navigator.share) {
+    navigator.share({ title: 'My JLPT Score', text: text, url: SITE_URL }).catch(() => {});
+    return;
+  }
+  openShareModal(text, emoji, 'Share Your Score');
+}
+
+function shareWord(kanji, furigana, meaning) {
+  const text = `🇯🇵 Just learned ${kanji} (${furigana}) = "${meaning}" on JLPT Vocabulary Master!\nLearn Japanese the anime way 👉 ${SITE_URL}`;
+  if (navigator.share) {
+    navigator.share({ title: `Japanese Word: ${kanji}`, text: text, url: SITE_URL }).catch(() => {});
+    return;
+  }
+  openShareModal(text, '🃏', `Share: ${kanji}`);
+}
+
+function shareTo(platform) {
+  const encoded = encodeURIComponent(_shareText);
+  const urls = {
+    twitter:  `https://twitter.com/intent/tweet?text=${encoded}`,
+    whatsapp: `https://wa.me/?text=${encoded}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL)}&quote=${encoded}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(SITE_URL)}`,
+    reddit:   `https://www.reddit.com/submit?url=${encodeURIComponent(SITE_URL)}&title=${encodeURIComponent('🇯🇵 JLPT Vocabulary Master — learn Japanese the anime way!')}`
+  };
+  if (urls[platform]) window.open(urls[platform], '_blank', 'width=620,height=520,noopener');
+}
+
+function copyLink() {
+  const btn = document.getElementById('copyLinkBtn');
+  navigator.clipboard.writeText(SITE_URL).then(() => {
+    btn.textContent = '✅ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '🔗 Copy Link';
+      btn.classList.remove('copied');
+    }, 2500);
+  });
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+loadHomeQuote();
+initCanvas();
+initHomeUI();
+</script>
+</body>
+</html>
