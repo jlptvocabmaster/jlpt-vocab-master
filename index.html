@@ -149,9 +149,87 @@ body::after { content: ''; position: fixed; top: 30%; left: 50%; transform: tran
   font-family: 'Noto Sans JP', sans-serif; font-size: 0.82rem; font-weight: 700;
   cursor: pointer; box-shadow: 0 4px 20px rgba(212,172,13,0.45);
   transition: transform .2s, box-shadow .2s;
-  text-decoration: none; display: flex; align-items: center; gap: 6px;
+  text-decoration: none; display: flex; align-items: center; gap: 8px;
 }
 .support-float:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(212,172,13,0.55); }
+
+/* Sensei bounce animation on support button */
+.sensei-icon {
+  display: inline-block;
+  font-size: 1.1rem;
+  animation: senseiWiggle 2.5s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+@keyframes senseiWiggle {
+  0%,100% { transform: rotate(0deg) translateY(0); }
+  15%     { transform: rotate(-8deg) translateY(-2px); }
+  30%     { transform: rotate(8deg) translateY(-4px); }
+  45%     { transform: rotate(-5deg) translateY(-2px); }
+  60%     { transform: rotate(0deg) translateY(0); }
+}
+
+/* Payment modal */
+.pay-modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 10001;
+  background: rgba(26,26,46,.7); backdrop-filter: blur(6px);
+  align-items: flex-end; justify-content: center; padding: 0;
+}
+.pay-modal-overlay.open { display: flex; animation: fadeUp .3s ease; }
+.pay-modal {
+  background: var(--paper); border-radius: 24px 24px 0 0;
+  width: 100%; max-width: 480px; padding: 28px 24px 40px;
+  position: relative; animation: slideUp .35s cubic-bezier(.4,0,.2,1) both;
+}
+.pay-modal-close {
+  position: absolute; top: 14px; right: 16px;
+  background: none; border: none; font-size: 1.2rem; cursor: pointer;
+  color: var(--stone); padding: 4px 8px; border-radius: 8px;
+  transition: background .18s;
+}
+.pay-modal-close:hover { background: var(--border); }
+.pay-modal-sensei {
+  text-align: center; font-size: 3.5rem; margin-bottom: 6px;
+  animation: senseiFloat 2s ease-in-out infinite;
+}
+@keyframes senseiFloat {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+.pay-modal-title {
+  font-family: 'DM Serif Display', serif; font-size: 1.3rem;
+  text-align: center; color: var(--ink); margin-bottom: 4px;
+}
+.pay-modal-sub {
+  text-align: center; font-size: 0.78rem; color: var(--stone);
+  margin-bottom: 22px; line-height: 1.5;
+}
+.pay-options { display: flex; flex-direction: column; gap: 12px; }
+.pay-btn {
+  display: flex; align-items: center; gap: 14px; padding: 16px 18px;
+  border-radius: 16px; border: 2px solid var(--border);
+  text-decoration: none; transition: all .2s; cursor: pointer;
+  background: var(--white);
+}
+.pay-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,.1); }
+.pay-btn.razorpay { border-color: #528FF0; }
+.pay-btn.razorpay:hover { background: #f0f4ff; }
+.pay-btn.gumroad { border-color: #ff90e8; }
+.pay-btn.gumroad:hover { background: #fff0fd; }
+.pay-btn-icon { font-size: 2rem; flex-shrink: 0; }
+.pay-btn-info { flex: 1; }
+.pay-btn-name { font-family: 'DM Serif Display', serif; font-size: 1rem; color: var(--ink); margin-bottom: 2px; }
+.pay-btn-desc { font-size: 0.72rem; color: var(--stone); line-height: 1.4; }
+.pay-btn-price {
+  font-family: 'DM Serif Display', serif; font-size: 1.1rem;
+  font-weight: 700; color: var(--crimson); flex-shrink: 0;
+}
+.pay-divider {
+  display: flex; align-items: center; gap: 10px; margin: 4px 0;
+}
+.pay-divider::before, .pay-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.pay-divider-text { font-size: 0.68rem; color: var(--stone); font-weight: 700; letter-spacing: 1px; }
 
 /* ── BACK BUTTON in game header ── */
 .gt-back {
@@ -963,6 +1041,133 @@ body { background: #fdf4e8; }
 .ms-start-btn:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(192,57,43,.45); }
 .ms-start-btn:active { transform:scale(.98); }
 
+/* ── GRAMMAR CHEATSHEET BUTTON ── */
+.ms-grammar-btn {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:calc(100% - 36px); margin:0 18px 14px;
+  padding:12px 16px; background:transparent;
+  border:2px dashed var(--gold); border-radius:14px;
+  color:var(--gold); font-family:'DM Serif Display',serif;
+  font-size:0.95rem; cursor:pointer; transition:all .2s;
+}
+.ms-grammar-btn:hover { background:var(--gold-lt); border-style:solid; transform:translateY(-1px); }
+.ms-grammar-btn .gbtn-icon { font-size:1.1rem; animation:senseiWiggle 3s ease-in-out infinite; }
+
+/* ── GRAMMAR OVERLAY ── */
+.grammar-overlay {
+  display:none; position:fixed; inset:0; z-index:10002;
+  background:rgba(26,26,46,.72); backdrop-filter:blur(6px);
+  align-items:flex-start; justify-content:center;
+  padding:16px; overflow-y:auto;
+}
+.grammar-overlay.open { display:flex; animation:fadeUp .3s ease; }
+
+.grammar-sheet {
+  background:var(--paper); border-radius:22px;
+  width:100%; max-width:640px; margin:auto;
+  overflow:hidden; box-shadow:0 32px 90px rgba(0,0,0,.35);
+  animation:slideUp .35s cubic-bezier(.4,0,.2,1) both;
+}
+
+/* sheet header */
+.gs-header {
+  background:linear-gradient(135deg, var(--ink), #2c3e50);
+  padding:20px 22px; display:flex; align-items:center; gap:14px;
+}
+.gs-header-icon { font-size:2.4rem; animation:senseiFloat 2.5s ease-in-out infinite; }
+.gs-header-text { flex:1; }
+.gs-header-title {
+  font-family:'DM Serif Display',serif; font-size:1.2rem; color:white;
+  margin-bottom:3px;
+}
+.gs-header-sub { font-size:0.7rem; color:#94a3b8; }
+.gs-header-badge {
+  font-family:'DM Serif Display',serif; font-size:1.8rem;
+  font-weight:700; opacity:.9;
+}
+.gs-close {
+  background:rgba(255,255,255,.1); border:none; border-radius:10px;
+  padding:8px 12px; color:white; cursor:pointer; font-size:0.85rem;
+  transition:background .18s; flex-shrink:0;
+}
+.gs-close:hover { background:rgba(255,255,255,.2); }
+
+/* category nav tabs */
+.gs-tabs {
+  display:flex; overflow-x:auto; gap:0;
+  border-bottom:2px solid var(--border);
+  background:var(--white); scrollbar-width:none;
+}
+.gs-tabs::-webkit-scrollbar { display:none; }
+.gs-tab {
+  flex-shrink:0; padding:10px 14px; background:none; border:none;
+  font-family:'Noto Sans JP',sans-serif; font-size:0.72rem; font-weight:700;
+  color:var(--stone); cursor:pointer; border-bottom:3px solid transparent;
+  margin-bottom:-2px; transition:all .18s; white-space:nowrap;
+}
+.gs-tab:hover { color:var(--ink); }
+.gs-tab.active { color:var(--crimson); border-bottom-color:var(--crimson); }
+
+/* category body */
+.gs-body { padding:0 0 24px; }
+.gs-category { display:none; }
+.gs-category.active { display:block; animation:fadeUp .25s ease; }
+
+/* category intro banner */
+.gs-cat-intro {
+  display:flex; align-items:flex-start; gap:12px;
+  background:var(--gold-lt); border-bottom:1.5px solid var(--border);
+  padding:14px 18px;
+}
+.gs-cat-intro-icon { font-size:1.6rem; flex-shrink:0; margin-top:2px; }
+.gs-cat-intro-title {
+  font-family:'DM Serif Display',serif; font-size:1rem; color:var(--ink);
+  margin-bottom:3px;
+}
+.gs-cat-intro-desc { font-size:0.74rem; color:var(--stone); line-height:1.55; }
+
+/* table */
+.gs-table-wrap { overflow-x:auto; padding:0 18px; margin-top:16px; }
+.gs-table {
+  width:100%; border-collapse:collapse; font-size:0.8rem;
+}
+.gs-table thead th {
+  font-size:0.6rem; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; color:var(--stone);
+  padding:0 10px 10px; text-align:left; border-bottom:2px solid var(--border);
+  white-space:nowrap;
+}
+.gs-table tbody tr { border-bottom:1px solid var(--border); }
+.gs-table tbody tr:last-child { border-bottom:none; }
+.gs-table tbody tr:hover { background:rgba(192,57,43,.03); }
+.gs-table td {
+  padding:11px 10px; vertical-align:top; line-height:1.5;
+}
+.gs-table td:first-child {
+  font-family:'DM Serif Display',serif; font-size:0.88rem;
+  color:var(--crimson); white-space:nowrap; font-weight:700;
+}
+.gs-td-jp {
+  font-family:'Noto Serif JP',serif; font-size:0.9rem; color:var(--ink);
+  display:block; margin-bottom:2px;
+}
+.gs-td-rom { font-size:0.68rem; color:var(--stone); font-style:italic; }
+.gs-td-meaning { font-size:0.78rem; color:var(--ink); }
+.gs-td-note {
+  font-size:0.65rem; color:var(--stone); background:var(--border);
+  border-radius:4px; padding:2px 7px; display:inline-block; margin-top:3px;
+}
+
+/* tip box */
+.gs-tip {
+  display:flex; gap:10px; align-items:flex-start;
+  background:var(--crimson-lt); border-radius:12px; padding:12px 14px;
+  margin:14px 18px 0; border-left:3px solid var(--crimson);
+}
+.gs-tip-icon { font-size:1.1rem; flex-shrink:0; }
+.gs-tip-text { font-size:0.74rem; color:var(--ink); line-height:1.6; }
+.gs-tip-text strong { color:var(--crimson); }
+
 /* ══════════════════════════════════════════
    ONBOARDING OVERLAY
 ══════════════════════════════════════════ */
@@ -1710,9 +1915,39 @@ body.hide-romaji .furigana-display { opacity: 0; pointer-events: none; height: 0
   </div>
 </div>
 
-<a id="supportBtn" href="https://4655550918506.gumroad.com/coffee" target="_blank" class="support-float">
-  ⭐ Say arigatou — ₹99
-</a>
+<!-- Support button triggers payment modal -->
+<button id="supportBtn" onclick="openPayModal()" class="support-float">
+  <span class="sensei-icon">🥋</span> Support Sensei
+</button>
+
+<!-- Payment modal -->
+<div class="pay-modal-overlay" id="payModalOverlay" onclick="if(event.target===this)closePayModal()">
+  <div class="pay-modal">
+    <button class="pay-modal-close" onclick="closePayModal()">✕</button>
+    <div class="pay-modal-sensei">🥋</div>
+    <div class="pay-modal-title">Support Your Sensei</div>
+    <div class="pay-modal-sub">Keep JLPT Vocab Master free forever.<br>Every ₹99 helps add new words &amp; features!</div>
+    <div class="pay-options">
+      <a href="https://rzp.io/rzp/6HpuxfM" target="_blank" class="pay-btn razorpay">
+        <span class="pay-btn-icon">⚡</span>
+        <div class="pay-btn-info">
+          <div class="pay-btn-name">Razorpay</div>
+          <div class="pay-btn-desc">UPI, Cards, Net Banking — instant & secure</div>
+        </div>
+        <span class="pay-btn-price">₹99</span>
+      </a>
+      <div class="pay-divider"><span class="pay-divider-text">OR</span></div>
+      <a href="https://4655550918506.gumroad.com/coffee" target="_blank" class="pay-btn gumroad">
+        <span class="pay-btn-icon">☕</span>
+        <div class="pay-btn-info">
+          <div class="pay-btn-name">Gumroad</div>
+          <div class="pay-btn-desc">International cards &amp; PayPal accepted</div>
+        </div>
+        <span class="pay-btn-price">₹99</span>
+      </a>
+    </div>
+  </div>
+</div>
 
 <div class="stripe"></div>
 <canvas id="kanjiCanvas"></canvas>
@@ -2080,6 +2315,10 @@ body.hide-romaji .furigana-display { opacity: 0; pointer-events: none; height: 0
       </div>
       <div class="ms-size-hint" id="msSizeHint"></div>
     </div>
+
+    <button class="ms-grammar-btn" onclick="openGrammar()">
+      <span class="gbtn-icon">📖</span> Grammar Cheatsheet — <span id="grammarBtnLevel">N5</span> Reference
+    </button>
 
     <button class="ms-start-btn" onclick="startGame()">始めましょう — Let's Begin →</button>
 
@@ -3038,7 +3277,7 @@ const vocab = {
     { k:'鑑みる', f:'かんがみる', r:'kangamiru', m:'to consider / take into account', pos:'verb (ru)' },
     { k:'踏まえる', f:'ふまえる', r:'fumaeru', m:'to be based on', pos:'verb (ru)' },
     { k:'醸し出す', f:'かもしだす', r:'kamoshidasu', m:'to create / engender (atmosphere)', pos:'verb (u)' },
-    { k:'引き起こす', f:'ひきおこす', r:'hikiokosuru', m:'to cause / trigger', pos:'verb (u)' },
+    { k:'引き起こす', f:'ひきおこす', r:'hikiokosu', m:'to cause / trigger', pos:'verb (u)' },
     { k:'付随する', f:'ふずいする', r:'fuzuisuru', m:'to accompany / be attendant', pos:'verb (suru)' },
     { k:'帰結する', f:'きけつする', r:'kiketsusuru', m:'to result in', pos:'verb (suru)' },
     { k:'内包する', f:'ないほうする', r:'naihousuru', m:'to connote / contain implicitly', pos:'verb (suru)' },
@@ -3106,9 +3345,9 @@ const extraN3 = [
     origin:{ pictograph:'結 shows thread (糸) being tied in a knot (吉) — the final binding. 果 shows a tree (木) with fruit (田) on top — the fruit that results from growth. Tying up + bearing fruit = result!', radicals:[{k:'糸',m:'thread'},{k:'木',m:'tree'},{k:'田',m:'fruit'}], literal:'Thread tied in a knot + tree bearing fruit = the final outcome 🍎', hook:'KE-KKA: "CHECK! KA-ching!" — check the result, and ka-ching! けっか!', related:['原因','成果','影響'] }},
   { k:'判断', f:'はんだん', r:'handan', m:'judgement / decision', pos:'noun',
     origin:{ pictograph:'判 shows a knife (刀) cutting something in half (半) — dividing and discriminating. 断 shows an axe (斤) cutting threads (糸) — cutting off decisively. Cutting + severing = making a judgement!', radicals:[{k:'刀',m:'knife'},{k:'糸',m:'thread'},{k:'斤',m:'axe'}], literal:'A knife splitting things + an axe cutting through = decisive judgement ⚖️', hook:'HAN-DAN: "HAN DAN-ces" — Han Solo dances when he makes a judgement call! はんだん!', related:['決める','評価','判定'] }},
-  { k:'解決する', f:'かいけつする', r:'kaiketsu suru', m:'to solve', pos:'verb (suru)',
+  { k:'解決する', f:'かいけつする', r:'kaiketsusuru', m:'to solve', pos:'verb (suru)',
     origin:{ pictograph:'解 shows a knife (刀) separating a cow (牛) horn (角) — cutting apart, loosening a bind. 決 shows water bursting through a dam. Together: untying the knot and breaking through = to solve!', radicals:[{k:'刀',m:'knife'},{k:'牛',m:'cow'},{k:'氵',m:'water'}], literal:'Cutting apart the tangle + water breaking free = problem solved! 🔓', hook:'KAI-KE-TSU: "KAY! Ke-TCHA!" — "Okay! Gotcha!" — problem solved! かいけつする!', related:['問題','対処','答える'] }},
-  { k:'参加する', f:'さんかする', r:'sanka suru', m:'to participate', pos:'verb (suru)',
+  { k:'参加する', f:'さんかする', r:'sankasuru', m:'to participate', pos:'verb (suru)',
     origin:{ pictograph:'参 shows three stars (彡) above a person bowing (大) — originally "to visit a shrine or pay respects." 加 shows a mouth (口) adding force (力) — joining in and adding your strength. Visiting + adding force = participating!', radicals:[{k:'彡',m:'three stars'},{k:'力',m:'strength'},{k:'口',m:'mouth'}], literal:'Bowing to join + adding your strength = getting involved! 🙌', hook:'SAN-KA: "SUN-KA-ching!" — the sun shines when you join in! さんかする!', related:['加わる','出席','協力'] }},
   { k:'比べる', f:'くらべる', r:'kuraberu', m:'to compare', pos:'verb (ru)',
     origin:{ pictograph:'比 shows two people (人) standing side by side — two things placed next to each other for comparison. The simplest act of measurement: putting things side by side!', radicals:[{k:'人',m:'person (x2)'}], literal:'Two people standing next to each other = comparing side by side 👥', hook:'KU-RA-BE-RU: "Kura-BEAR-u" — compare two bears, which is bigger? くらべる!', related:['違い','同じ','差'] }},
@@ -3336,7 +3575,7 @@ const extraN3more = [
   { k:'磨く', f:'みがく', r:'migaku', m:'to polish / improve', pos:'verb (u)' },
   { k:'育む', f:'はぐくむ', r:'hagukumu', m:'to nurture / foster', pos:'verb (u)' },
   { k:'探す', f:'さがす', r:'sagasu', m:'to search', pos:'verb (u)' },
-  { k:'試みる', f:'こころみる', r:'こころみる', m:'to attempt', pos:'verb (ru)' },
+  { k:'試みる', f:'こころみる', r:'kokoromiru', m:'to attempt', pos:'verb (ru)' },
   { k:'繰り返す', f:'くりかえす', r:'kurikaesu', m:'to repeat', pos:'verb (u)' },
   { k:'目指す', f:'めざす', r:'mezasu', m:'to aim for', pos:'verb (u)' },
   { k:'引き込む', f:'ひきこむ', r:'hikikomu', m:'to draw in / attract', pos:'verb (u)' },
@@ -3485,6 +3724,7 @@ function pickLevel(lv) {
   document.getElementById('msBadge').style.color = m.color;
   document.getElementById('msTitle').textContent = m.title;
   document.getElementById('msSub').textContent   = `${total} words available in ${lv}`;
+  document.getElementById('grammarBtnLevel').textContent = lv;
 
   // random anime quote
   const q = animeQuotes[Math.floor(Math.random()*animeQuotes.length)];
@@ -3569,6 +3809,12 @@ function closeBackConfirm() {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  // Only show share FAB and support button on home screen
+  const onHome = id === 'homeScreen';
+  const shareFab = document.getElementById('shareFabWrap');
+  const supportBtn = document.getElementById('supportBtn');
+  if (shareFab) shareFab.style.display = onHome ? '' : 'none';
+  if (supportBtn) supportBtn.style.display = onHome ? '' : 'none';
 }
 
 function startGame() {
@@ -5638,6 +5884,546 @@ function toggleIntro() {
 }
 
 // ─────────────────────────────────────────────
+// GRAMMAR CHEATSHEET DATA
+// ─────────────────────────────────────────────
+const GRAMMAR = {
+  N5: [
+    {
+      tab: 'い-Adj', icon: '🔴', title: 'い-Adjectives (い形容詞)',
+      desc: 'Adjectives ending in い. They conjugate directly without です in plain form.',
+      tip: 'Never attach な to an い-adjective! 大きいな is wrong; 大きい is correct.',
+      rows: [
+        ['Dictionary', '大きい (おおきい)', 'ookii', 'big / large'],
+        ['Negative', '大きくない', 'ookiku nai', 'not big'],
+        ['Past', '大きかった', 'ookikatta', 'was big'],
+        ['Past neg.', '大きくなかった', 'ookiku nakatta', 'was not big'],
+        ['Adverb', '大きく (+ verb)', 'ookiku', 'in a big way (modifies verb)'],
+        ['Noun mod.', '大きい犬', 'ookii inu', 'a big dog (before noun)'],
+        ['て-form', '大きくて…', 'ookikute…', 'big and… (joining clauses)'],
+      ]
+    },
+    {
+      tab: 'な-Adj', icon: '🟠', title: 'な-Adjectives (な形容詞)',
+      desc: 'Adjective-like nouns. Require な before a noun and です/だ as copula.',
+      tip: 'な-adjectives look like nouns — the な only appears when they directly modify a noun.',
+      rows: [
+        ['Dictionary', '静かだ (しずかだ)', 'shizuka da', 'is quiet'],
+        ['Polite', '静かです', 'shizuka desu', 'is quiet (polite)'],
+        ['Negative', '静かではない', 'shizuka dewa nai', 'is not quiet'],
+        ['Past', '静かだった', 'shizuka datta', 'was quiet'],
+        ['Past neg.', '静かではなかった', 'shizuka dewa nakatta', 'was not quiet'],
+        ['Noun mod.', '静かな部屋', 'shizuka na heya', 'a quiet room'],
+        ['て-form', '静かで…', 'shizuka de…', 'quiet and… (joining clauses)'],
+      ]
+    },
+    {
+      tab: 'て-Form', icon: '🟡', title: 'て-Form (てけい)',
+      desc: 'The て-form connects actions, makes requests (~てください), and builds grammar patterns.',
+      tip: 'う→って, く→いて, ぐ→いで, す→して, む/ぶ/ぬ→んで, る-verbs→て',
+      rows: [
+        ['う-verb (u→tte)', '買う → 買って', 'kau → katte', 'buy → (te-form)'],
+        ['う-verb (ku→ite)', '書く → 書いて', 'kaku → kaite', 'write → (te-form)'],
+        ['う-verb (gu→ide)', '泳ぐ → 泳いで', 'oyogu → oyoide', 'swim → (te-form)'],
+        ['う-verb (su→shite)', '話す → 話して', 'hanasu → hanashite', 'speak → (te-form)'],
+        ['う-verb (mu/bu/nu→nde)', '飲む → 飲んで', 'nomu → nonde', 'drink → (te-form)'],
+        ['る-verb', '食べる → 食べて', 'taberu → tabete', 'eat → (te-form)'],
+        ['Irregular: くる', '来る → 来て', 'kuru → kite', 'come → (te-form)'],
+        ['Irregular: する', 'する → して', 'suru → shite', 'do → (te-form)'],
+        ['Request', '食べてください', 'tabete kudasai', 'Please eat'],
+        ['Progressive', '食べています', 'tabete imasu', 'is eating / has eaten'],
+        ['Permission', '食べてもいいです', 'tabete mo ii desu', 'It\'s ok to eat'],
+        ['Prohibition', '食べてはいけません', 'tabete wa ikemasen', 'Must not eat'],
+      ]
+    },
+    {
+      tab: 'Verb Groups', icon: '🟢', title: 'Verb Conjugation Groups',
+      desc: 'Japanese verbs split into 3 groups. Knowing the group tells you how to conjugate.',
+      tip: 'When in doubt: if it ends in る after an e/i sound → usually Group 2 (る-verb).',
+      rows: [
+        ['Group 1 (う-verbs)', '飲む、書く、話す', 'nomu, kaku, hanasu', 'Drop the u-sound, add conjugation'],
+        ['Group 2 (る-verbs)', '食べる、見る、起きる', 'taberu, miru, okiru', 'Drop る, add conjugation'],
+        ['Group 3 (irregular)', 'する、来る', 'suru, kuru', 'Memorise separately'],
+        ['Polite stem', '食べ + ます', 'tabe + masu', 'tabemasu — polite present'],
+        ['Negative polite', '食べません', 'tabemasen', 'do not eat'],
+        ['Past polite', '食べました', 'tabemashita', 'ate'],
+        ['Past neg. polite', '食べませんでした', 'tabemasen deshita', 'did not eat'],
+        ['Volitional polite', '食べましょう', 'tabemashou', 'Let\'s eat'],
+      ]
+    },
+    {
+      tab: 'Particles', icon: '🔵', title: 'Core Particles (助詞)',
+      desc: 'Particles follow nouns to mark their grammatical role. N5 requires all of these.',
+      tip: 'は marks the topic (what we\'re talking about); が marks the subject (who/what does it).',
+      rows: [
+        ['は (wa)', '私は学生です', 'watashi wa gakusei desu', 'Topic marker — I am a student'],
+        ['が (ga)', '猫が好きです', 'neko ga suki desu', 'Subject marker — I like cats'],
+        ['を (wo)', 'りんごを食べる', 'ringo o taberu', 'Object marker — eat an apple'],
+        ['に (ni)', '学校に行く', 'gakkou ni iku', 'Direction/time/location — go to school'],
+        ['で (de)', '公園で遊ぶ', 'kouen de asobu', 'Location of action — play at the park'],
+        ['へ (e)', '東京へ行く', 'Toukyou e iku', 'Direction (toward) — go toward Tokyo'],
+        ['の (no)', '私の本', 'watashi no hon', 'Possession — my book'],
+        ['と (to)', '友達と行く', 'tomodachi to iku', 'Together with — go with a friend'],
+        ['も (mo)', '私も行く', 'watashi mo iku', 'Also/too — I will also go'],
+        ['から (kara)', '9時から', 'ku-ji kara', 'From — from 9 o\'clock'],
+        ['まで (made)', '5時まで', 'go-ji made', 'Until — until 5 o\'clock'],
+        ['か (ka)', '行きますか？', 'ikimasu ka?', 'Question marker — Will you go?'],
+      ]
+    },
+    {
+      tab: 'Copula', icon: '⚪', title: 'Copula & Existence (です／います／あります)',
+      desc: 'How to say "is/am/are" and "exists" in Japanese.',
+      tip: 'います for living things; あります for non-living things.',
+      rows: [
+        ['Present', 'です', 'desu', 'is / am / are (polite)'],
+        ['Negative', 'じゃないです', 'ja nai desu', 'is not (polite)'],
+        ['Past', 'でした', 'deshita', 'was / were (polite)'],
+        ['Past neg.', 'じゃなかったです', 'ja nakatta desu', 'was not (polite)'],
+        ['Existence (living)', 'います', 'imasu', 'there is (person/animal)'],
+        ['Existence (non-living)', 'あります', 'arimasu', 'there is (object/thing)'],
+        ['Not exist (living)', 'いません', 'imasen', 'there is not (living)'],
+        ['Not exist (non-living)', 'ありません', 'arimasen', 'there is not (non-living)'],
+      ]
+    },
+  ],
+
+  N4: [
+    {
+      tab: 'Potential', icon: '💪', title: 'Potential Form — Can do (〜できる)',
+      desc: 'Express ability to do something. る-verbs: drop る add られる. う-verbs: change the u-row to e-row + る.',
+      tip: 'In casual speech, られる is often shortened to れる: 食べれる instead of 食べられる.',
+      rows: [
+        ['る-verb rule', '食べる → 食べられる', 'taberu → taberareru', 'can eat'],
+        ['う-verb rule', '書く → 書ける', 'kaku → kakeru', 'can write'],
+        ['う-verb rule', '飲む → 飲める', 'nomu → nomeru', 'can drink'],
+        ['う-verb rule', '話す → 話せる', 'hanasu → hanaseru', 'can speak'],
+        ['Irregular: する', 'する → できる', 'suru → dekiru', 'can do'],
+        ['Irregular: くる', '来る → 来られる', 'kuru → korareru', 'can come'],
+        ['Negative potential', '食べられない', 'taberarenai', 'cannot eat'],
+        ['With object', '日本語が話せます', 'nihongo ga hanasemasu', 'I can speak Japanese'],
+      ]
+    },
+    {
+      tab: 'Volitional', icon: '🙌', title: 'Volitional Form — Let\'s / I\'ll (〜よう)',
+      desc: 'Used to suggest doing something together or express one\'s own intention.',
+      tip: 'Polite: 〜ましょう (tabemashou). Plain: る-verb drop る add よう; う-verb change u→ou.',
+      rows: [
+        ['る-verb plain', '食べる → 食べよう', 'taberu → tabeyou', 'let\'s eat / I\'ll eat'],
+        ['う-verb plain', '飲む → 飲もう', 'nomu → nomou', 'let\'s drink'],
+        ['う-verb plain', '行く → 行こう', 'iku → ikou', 'let\'s go'],
+        ['する plain', 'する → しよう', 'suru → shiyou', 'let\'s do'],
+        ['くる plain', '来る → 来よう', 'kuru → koyou', 'let\'s come'],
+        ['Polite all verbs', '食べましょう', 'tabemashou', 'let\'s eat (polite)'],
+        ['Intention', '日本語を勉強しようと思っている', '…shiyou to omotteiru', 'I\'m thinking of studying Japanese'],
+        ['Suggestion', '映画を見ようか', 'eiga o miyou ka', 'Shall we watch a movie?'],
+      ]
+    },
+    {
+      tab: 'て-Patterns', icon: '🔗', title: 'Advanced て-Form Patterns',
+      desc: 'Building on the N5 て-form, N4 introduces more complex grammar structures.',
+      tip: '〜てしまう expresses regret or completion — a very natural and frequent pattern.',
+      rows: [
+        ['〜てしまう', '食べてしまった', 'tabete shimatta', 'ended up eating / ate it all (regret/completion)'],
+        ['〜ておく', '準備しておく', 'junbi shite oku', 'prepare in advance (do for later)'],
+        ['〜てみる', '食べてみる', 'tabete miru', 'try eating (attempt something)'],
+        ['〜てくる', '買ってくる', 'katte kuru', 'go and buy (action then return)'],
+        ['〜ていく', '増えていく', 'fuete iku', 'keeps increasing (gradual change)'],
+        ['〜てある', '書いてある', 'kaite aru', 'has been written (result state)'],
+        ['〜てほしい', '来てほしい', 'kite hoshii', 'I want you to come'],
+        ['〜てあげる', '教えてあげる', 'oshiete ageru', 'do the favour of teaching (for someone)'],
+        ['〜てもらう', '教えてもらう', 'oshiete morau', 'have someone teach me'],
+        ['〜てくれる', '教えてくれる', 'oshiete kureru', 'someone kindly teaches me'],
+      ]
+    },
+    {
+      tab: 'Conditional', icon: '🔀', title: 'Conditional Forms (〜たら／〜ば／〜と)',
+      desc: 'Japanese has multiple "if/when" conditionals — each with subtle differences in usage.',
+      tip: '〜たら is the safest and most versatile. Use 〜と for natural automatic results.',
+      rows: [
+        ['〜たら (general if)', '雨が降ったら、家にいる', 'ame ga futtara, ie ni iru', 'If it rains, I\'ll stay home'],
+        ['〜たら (when/after)', '着いたら電話して', 'tsuitara denwa shite', 'Call me when you arrive'],
+        ['〜ば (hypothetical)', '食べれば元気になる', 'tabereba genki ni naru', 'If you eat, you\'ll feel better'],
+        ['〜と (automatic result)', '春になると花が咲く', 'haru ni naru to hana ga saku', 'When spring comes, flowers bloom'],
+        ['〜なら (topic condition)', '東京なら電車が便利だ', 'Tokyo nara densha ga benri da', 'If it\'s Tokyo, trains are convenient'],
+        ['Negative conditional 〜なければ', '食べなければならない', 'tabenakereba naranai', 'must eat (if not eat, won\'t do)'],
+      ]
+    },
+    {
+      tab: 'Giving/Receiving', icon: '🎁', title: 'Giving & Receiving Verbs',
+      desc: 'Japanese uses different verbs depending on the direction of giving and social relationship.',
+      tip: 'The direction of giving determines the verb — think from whose perspective the action is seen.',
+      rows: [
+        ['あげる', '友達にプレゼントをあげる', 'tomodachi ni … ageru', 'give TO someone (I/equal → other)'],
+        ['もらう', '友達にプレゼントをもらう', 'tomodachi ni … morau', 'receive FROM someone'],
+        ['くれる', '友達がプレゼントをくれる', 'tomodachi ga … kureru', 'someone gives TO me (other → me)'],
+        ['さしあげる', '先生に本をさしあげる', 'sensei ni … sashiageru', 'give to superior (humble)'],
+        ['いただく', '先生に本をいただく', 'sensei ni … itadaku', 'receive from superior (humble)'],
+        ['くださる', '先生が本をくださる', 'sensei ga … kudasaru', 'superior gives to me (honorific)'],
+      ]
+    },
+    {
+      tab: 'Passive', icon: '😶', title: 'Passive Form (受身形)',
+      desc: 'The passive voice — used when the subject is acted upon, or to show being affected.',
+      tip: 'る-verbs: drop る add られる. う-verbs: u-row → a-row + れる. Same form as potential for る-verbs!',
+      rows: [
+        ['る-verb rule', '食べる → 食べられる', 'taberu → taberareru', 'to be eaten'],
+        ['う-verb rule', '飲む → 飲まれる', 'nomu → nomareru', 'to be drunk'],
+        ['う-verb rule', '書く → 書かれる', 'kaku → kakareru', 'to be written'],
+        ['する', 'する → される', 'suru → sareru', 'to be done'],
+        ['くる', '来る → 来られる', 'kuru → korareru', 'to be come to'],
+        ['Adversative passive', '雨に降られた', 'ame ni furareta', 'was rained on (negative nuance)'],
+        ['Direct passive', '先生に褒められた', 'sensei ni homerareta', 'was praised by the teacher'],
+      ]
+    },
+  ],
+
+  N3: [
+    {
+      tab: 'Causative', icon: '👮', title: 'Causative Form — Make/Let (〜させる)',
+      desc: 'Express making or letting someone do something.',
+      tip: 'は with causative often implies "let"; を often implies "make/force".',
+      rows: [
+        ['る-verb rule', '食べる → 食べさせる', 'taberu → tabesaseru', 'make/let someone eat'],
+        ['う-verb rule', '飲む → 飲ませる', 'nomu → nomaseru', 'make/let someone drink'],
+        ['する', 'する → させる', 'suru → saseru', 'make/let do'],
+        ['くる', '来る → 来させる', 'kuru → kosaseru', 'make/let come'],
+        ['"Make" nuance', '子供に野菜を食べさせた', '…tabesaseta', 'made the child eat vegetables'],
+        ['"Let" nuance', '子供に遊ばせた', '…asobaseta', 'let the child play'],
+        ['Causative-passive', '食べさせられる', 'tabesaserareru', 'be made to eat (against will)'],
+        ['Request to let', 'やらせてください', 'yarasete kudasai', 'Please let me do it'],
+      ]
+    },
+    {
+      tab: 'Causative-Pass.', icon: '😫', title: 'Causative-Passive (〜させられる)',
+      desc: 'Being forced to do something against your will — combines causative + passive.',
+      tip: 'This is a long form but very common in daily speech to express compulsion.',
+      rows: [
+        ['Formation', '飲む → 飲まされる', 'nomu → nomasareru', 'be made to drink (colloquial)'],
+        ['Full form', '飲む → 飲まさせられる', 'nomu → nomasaserareru', 'be made to drink (formal)'],
+        ['Example', '残業させられた', 'zangyou saserareta', 'I was made to do overtime'],
+        ['Example', '謝らせられた', 'ayamarasareta', 'I was forced to apologize'],
+      ]
+    },
+    {
+      tab: 'Keigo Intro', icon: '🙇', title: 'Keigo Basics — Polite Language (敬語)',
+      desc: 'N3 introduces sonkeigo (respectful) and kenjougo (humble) — essential for workplaces.',
+      tip: 'Sonkeigo elevates others\' actions; Kenjougo lowers your own actions to show respect.',
+      rows: [
+        ['いる → いらっしゃる', '先生はいらっしゃいますか', '…irasshaimasu ka', 'Is the teacher here? (respectful)'],
+        ['する → なさる', '何をなさいますか', 'nani o nasaimasu ka', 'What will you do? (respectful)'],
+        ['言う → おっしゃる', '先生がおっしゃった', 'sensei ga osshatta', 'The teacher said (respectful)'],
+        ['もらう → いただく', 'お土産をいただいた', 'omiyage o itadaita', 'I humbly received a souvenir'],
+        ['あげる → さしあげる', 'ご説明さしあげます', 'go-setsumei sashiagemasu', 'I will humbly explain'],
+        ['する → いたす', 'ご連絡いたします', 'go-renraku itashimasu', 'I will humbly contact you'],
+        ['行く/来る → まいる', 'すぐまいります', 'sugu mairimasu', 'I will come/go right away (humble)'],
+      ]
+    },
+    {
+      tab: 'Nominalisation', icon: '📦', title: 'Nominalisation (〜こと／〜の)',
+      desc: 'Turning verbs and adjectives into noun-like phrases using こと or の.',
+      tip: 'Use の for directly perceived things (I heard/saw it). Use こと for abstract facts.',
+      rows: [
+        ['こと (abstract)', '日本語を話すことが好きだ', '…koto ga suki da', 'I like speaking Japanese'],
+        ['の (perception)', '彼が歌っているのを聞いた', '…no o kiita', 'I heard him singing'],
+        ['こと (fact)', '彼が来ることを知っている', '…koto o shitte iru', 'I know that he is coming'],
+        ['〜ことができる', '泳ぐことができる', '…koto ga dekiru', 'can swim (potential with こと)'],
+        ['〜ことがある', '富士山に登ったことがある', '…koto ga aru', 'have experienced climbing Mt. Fuji'],
+        ['〜ことにする', '毎日運動することにした', '…koto ni shita', 'decided to exercise daily'],
+        ['〜ことになる', '転勤することになった', '…koto ni natta', 'it has been decided I\'ll transfer'],
+      ]
+    },
+    {
+      tab: 'Conjunctions', icon: '🔗', title: 'Conjunctions & Connectors',
+      desc: 'N3 grammar connectors for building complex, natural sentences.',
+      tip: 'のに carries a nuance of disappointment or unexpectedness — a very expressive particle.',
+      rows: [
+        ['〜のに', '勉強したのに、落ちた', '…noni, ochita', 'Even though I studied, I failed'],
+        ['〜ために', '合格するために勉強する', '…tame ni benkyou suru', 'study in order to pass'],
+        ['〜ように', '忘れないように書く', '…you ni kaku', 'write so as not to forget'],
+        ['〜ながら', '音楽を聴きながら走る', '…nagara hashiru', 'run while listening to music'],
+        ['〜し', '頭もいいし、やさしい', '…shi, yasashii', 'He\'s smart and also kind (listing reasons)'],
+        ['〜ば〜ほど', '練習すればするほど上手くなる', '…hodo jouzu ni naru', 'The more you practise, the better'],
+        ['〜だけでなく', '英語だけでなく日本語も話せる', '…dake de naku', 'not only English but also Japanese'],
+        ['〜かわりに', '行くかわりに電話する', '…kawari ni', 'instead of going, I\'ll call'],
+      ]
+    },
+    {
+      tab: 'Modality', icon: '🌡️', title: 'Modality — Must / Should / Seem',
+      desc: 'Expressing obligation, probability, and hearsay.',
+      tip: '〜らしい is based on evidence you\'ve gathered; 〜そう is based on what you directly see/hear.',
+      rows: [
+        ['〜なければならない', '宿題をしなければならない', '…nakereba naranai', 'must do homework'],
+        ['〜なくていい', '来なくていい', '…nakute ii', 'don\'t need to come'],
+        ['〜はずだ', '彼は来るはずだ', '…hazu da', 'He should/ought to be coming (expectation)'],
+        ['〜そうだ (appear)', '雨が降りそうだ', '…sou da', 'It looks like it will rain'],
+        ['〜そうだ (hearsay)', '彼は来ないそうだ', '…sou da', 'I hear he won\'t come'],
+        ['〜らしい', '明日は休みらしい', '…rashii', 'It seems tomorrow is a holiday (evidence-based)'],
+        ['〜ようだ', '眠そうだ', '…you da', 'seems sleepy (speaker\'s direct impression)'],
+        ['〜かもしれない', '雨かもしれない', '…kamoshirenai', 'it might rain'],
+      ]
+    },
+  ],
+
+  N2: [
+    {
+      tab: 'Formal Expr.', icon: '🏢', title: 'Formal Expressions',
+      desc: 'N2 features formal written and spoken patterns common in business and literature.',
+      tip: 'に関して and について are often interchangeable, but に関して is more formal/written.',
+      rows: [
+        ['〜に関して', '環境問題に関して話す', '…ni kanshite', 'speak regarding the environment'],
+        ['〜に対して', '先生に対して敬意を示す', '…ni taishite', 'show respect toward the teacher'],
+        ['〜によって', '人によって違う', '…ni yotte', 'differs depending on the person'],
+        ['〜に基づいて', 'データに基づいて判断する', '…ni motozuite', 'judge based on data'],
+        ['〜をはじめとして', '東京をはじめとして…', '…o hajime toshite', 'starting with Tokyo…'],
+        ['〜において', '会議において決定する', '…ni oite', 'decide in/at the meeting (formal で)'],
+        ['〜に伴って', '成長に伴って変わる', '…ni tomonatte', 'change along with growth'],
+      ]
+    },
+    {
+      tab: 'Advanced Pass.', icon: '🔄', title: 'Advanced Passive & Causative',
+      desc: 'N2 deepens understanding of passive nuance and complex causative structures.',
+      tip: 'The indirect/adversative passive expresses that you were negatively affected by someone\'s action.',
+      rows: [
+        ['Adversative (indirect)', '財布を盗まれた', 'saifu o nusumareta', 'had my wallet stolen (affected)'],
+        ['Adversative (indirect)', '子供に泣かれた', 'kodomo ni nakareta', 'the child cried on me (troubled by)'],
+        ['Causative + てもらう', '子供に食べさせてもらった', '…tabesasete moratta', 'had the child eat (with permission)'],
+        ['させていただく', '発表させていただきます', '…sasete itadakimasu', 'I will humbly present (business)'],
+        ['〜られる (spontaneous)', '昔のことが思い出される', '…omoidasareru', 'memories naturally come back'],
+      ]
+    },
+    {
+      tab: 'Nominals', icon: '📋', title: 'Nominal & Clause Structures',
+      desc: 'Complex structures that package clauses as nouns or modify nouns in sophisticated ways.',
+      tip: '〜わけだ is used to explain why something logically follows — very common in explanations.',
+      rows: [
+        ['〜わけだ', '10年勉強したわけだから上手い', '…wake da', 'No wonder he\'s good (logical conclusion)'],
+        ['〜わけではない', '嫌いなわけではない', '…wake dewa nai', 'It\'s not that I dislike it'],
+        ['〜わけにはいかない', '行くわけにはいかない', '…wake ni wa ikanai', 'I simply cannot go'],
+        ['〜ものだ', '子供は泣くものだ', '…mono da', 'Children naturally cry (general truth)'],
+        ['〜ものの', '買ったものの、使っていない', '…mono no', 'Although I bought it, I\'m not using it'],
+        ['〜ところだ', '今、出発するところだ', '…tokoro da', 'I am just about to depart'],
+        ['〜ところだった', '事故になるところだった', '…tokoro datta', 'I was about to have an accident'],
+        ['〜に違いない', '彼は知っているに違いない', '…ni chigainai', 'He must certainly know'],
+      ]
+    },
+    {
+      tab: 'Keigo Advanced', icon: '🎩', title: 'Advanced Keigo (敬語)',
+      desc: 'N2 requires confident use of all three keigo types in natural contexts.',
+      tip: 'お〜になる is the standard sonkeigo frame; お〜する is the standard kenjougo frame.',
+      rows: [
+        ['お〜になる (sonkeigo)', '先生がお読みになった', 'sensei ga o-yomi ni natta', 'The teacher read (respectful)'],
+        ['お〜する (kenjougo)', '私がお持ちします', 'watashi ga o-mochi shimasu', 'I will humbly carry it'],
+        ['見る → ご覧になる', '資料をご覧になりましたか', 'shiryou o go-ran ni narimashita ka', 'Have you looked at the document?'],
+        ['食べる → 召し上がる', '何を召し上がりますか', 'nani o meshiagarimasu ka', 'What will you have? (respectful)'],
+        ['言う → 申す', '田中と申します', 'Tanaka to moushimasu', 'My name is Tanaka (humble)'],
+        ['知る → 存じる', 'その件は存じております', '…zonjite orimasu', 'I am aware of that matter (humble)'],
+        ['ご〜ください', 'ご確認ください', 'go-kakunin kudasai', 'Please confirm (polite request)'],
+      ]
+    },
+    {
+      tab: 'Concession', icon: '⚖️', title: 'Concession & Contrast',
+      desc: 'Expressing nuanced contrast, unexpected outcomes, and conceding points.',
+      tip: 'とはいえ and にもかかわらず are very common in formal writing and speeches.',
+      rows: [
+        ['〜にもかかわらず', '雨にもかかわらず来た', '…ni mo kakawarazu', 'came despite the rain'],
+        ['〜とはいえ', '忙しいとはいえ、連絡すべきだ', '…to wa ie', 'That said, even if busy, should contact'],
+        ['〜ながらも', '知りながらも黙っていた', '…nagara mo', 'kept silent while knowing'],
+        ['〜くせに', '知っているくせに言わない', '…kuse ni', 'won\'t say despite knowing (reproach)'],
+        ['〜割には', '練習した割には上手くない', '…wari ni wa', 'not good considering how much practised'],
+        ['〜反面', '便利な反面、危険だ', '…hanmen', 'convenient on one hand, dangerous on the other'],
+      ]
+    },
+    {
+      tab: 'Adv. Conditionals', icon: '🎯', title: 'Advanced Conditionals & Limits',
+      desc: 'More precise conditional and limiting expressions required at N2 level.',
+      tip: '〜さえ〜ば is a very powerful "if only X then Y" pattern — extremely useful.',
+      rows: [
+        ['〜さえ〜ば', 'お金さえあれば行ける', '…sae…ba', 'If only I had money, I could go'],
+        ['〜てさえいれば', '勉強してさえいれば良かった', '…te sae ireba', 'If only I had been studying'],
+        ['〜次第', '着き次第、連絡する', '…shidai', 'will contact as soon as I arrive'],
+        ['〜かぎり', '生きているかぎり頑張る', '…kagiri', 'will do my best as long as I live'],
+        ['〜ないかぎり', '雨が降らないかぎり行く', '…nai kagiri', 'will go unless it rains'],
+        ['〜をもとに', 'データをもとに分析する', '…o moto ni', 'analyse based on data'],
+      ]
+    },
+  ],
+
+  N1: [
+    {
+      tab: 'Literary Forms', icon: '📜', title: 'Literary & Classical Forms',
+      desc: 'N1 includes forms from classical Japanese (文語) still used in formal writing.',
+      tip: 'べき and べからず appear in rules, notices, and formal text constantly.',
+      rows: [
+        ['〜べきだ', '学生は勉強すべきだ', '…beki da', 'Students ought to study (strong obligation)'],
+        ['〜べきではない', '嘘をつくべきではない', '…beki dewa nai', 'one ought not lie'],
+        ['〜ざるをえない', '認めざるをえない', '…zaru o enai', 'cannot help but admit (compulsion)'],
+        ['〜ずにはいられない', '笑わずにはいられない', '…zu ni wa irarenai', 'cannot help but laugh'],
+        ['〜に他ならない', 'これは愛に他ならない', '…ni hoka naranai', 'this is nothing but love'],
+        ['〜に過ぎない', '私は通行人に過ぎない', '…ni suginai', 'I am merely a passerby'],
+        ['〜とあれば', '君のためとあれば何でもする', '…to areba', 'if it is for your sake, I\'ll do anything'],
+        ['〜ともなると', '部長ともなると責任が重い', '…to mo naru to', 'once you become a manager, the responsibility is heavy'],
+      ]
+    },
+    {
+      tab: 'Double Negatives', icon: '🔁', title: 'Double Negatives & Emphasis',
+      desc: 'N1 uses complex double-negative structures to express strong affirmation.',
+      tip: 'Double negatives in Japanese often create a softer, more emphatic positive than just saying yes.',
+      rows: [
+        ['〜ないわけではない', '嫌いなわけではない', '…nai wake dewa nai', 'it\'s not that I don\'t dislike it (= I somewhat do)'],
+        ['〜ないことはない', '不可能なことはない', '…koto wa nai', 'it\'s not that it\'s impossible (= it\'s possible)'],
+        ['〜なくはない', '行かなくはない', '…naku wa nai', 'it\'s not that I won\'t go'],
+        ['〜ないではいられない', '心配しないではいられない', '…nai de wa irarenai', 'can\'t help but worry'],
+        ['〜ないまでも', '毎日でないまでも週3回は運動する', '…nai made mo', 'if not every day, at least 3 times a week'],
+      ]
+    },
+    {
+      tab: 'Nuanced Conj.', icon: '🎭', title: 'Nuanced Conjunctions',
+      desc: 'Sophisticated conjunctions that express subtle logical and emotional relationships.',
+      tip: 'かたわら and かたがた are relatively rare but appear in formal correspondence and essays.',
+      rows: [
+        ['〜かたわら', '働くかたわら絵を描く', '…katawara', 'paint alongside working (simultaneous activity)'],
+        ['〜につけ', '見るにつけ聞くにつけ驚く', '…ni tsuke', 'every time I see/hear, I am surprised'],
+        ['〜がてら', '散歩がてら買い物する', '…gatera', 'go shopping on the way of a walk'],
+        ['〜そばから', '覚えるそばから忘れる', '…soba kara', 'forget as soon as one remembers'],
+        ['〜もさることながら', 'デザインもさることながら機能も優れている', '…mo saru koto nagara', 'not only the design but also the function excels'],
+        ['〜ならではの', '京都ならではの美しさ', '…nara dewa no', 'beauty unique to Kyoto'],
+        ['〜とはいえども', '便利とはいえども弊害もある', '…to wa ie domo', 'even though convenient, there are drawbacks'],
+      ]
+    },
+    {
+      tab: 'Adv. Keigo', icon: '👑', title: 'Advanced Keigo & Business Japanese',
+      desc: 'N1-level keigo used in formal business settings, letters, and official contexts.',
+      tip: 'ご〜賜る is extremely formal — seen in official letters and ceremonial speeches.',
+      rows: [
+        ['〜ていただければ幸いです', '確認していただければ幸いです', '…itadakereba saiwai desu', 'I would be grateful if you could confirm'],
+        ['ご〜賜る', 'ご支援を賜りたく…', 'go-shien o tamawaritaku', 'humbly requesting your support (formal letter)'],
+        ['〜申し上げる', 'お礼申し上げます', 'o-rei moushiagemasu', 'I express my gratitude (very formal)'],
+        ['ご高配を賜る', 'ご高配を賜りありがとうございます', 'go-kouhai o tamawarimashite', 'Thank you for your kind consideration (formal)'],
+        ['〜ご容赦ください', 'ご不便をおかけし、ご容赦ください', '…go-yousha kudasai', 'Please forgive the inconvenience'],
+        ['〜に存じます', 'ご多忙のこととは存じますが', '…ni zonjimasu', 'I understand you are busy, but… (formal opening)'],
+      ]
+    },
+    {
+      tab: 'Emotive', icon: '💫', title: 'Emotive & Rhetorical Expressions',
+      desc: 'Expressions that convey emotion, surprise, indignation, admiration in sophisticated ways.',
+      tip: 'Many of these appear in literature, speeches, and media — essential for N1 reading comprehension.',
+      rows: [
+        ['〜てならない', '心配でならない', '…te naranai', 'I simply cannot help but worry (strong emotion)'],
+        ['〜てたまらない', '暑くてたまらない', '…te tamaranai', 'unbearably hot (uncontrollable feeling)'],
+        ['〜てやまない', '成功を願ってやまない', '…te yamanai', 'sincerely hope for success (deep wish)'],
+        ['〜に堪えない', '感激に堪えない', '…ni taenai', 'cannot contain my emotion (formal)'],
+        ['〜を禁じえない', '怒りを禁じえない', '…o kinjienai', 'cannot suppress my anger'],
+        ['〜限りだ', '恥ずかしい限りだ', '…kagiri da', 'I am the most embarrassed (superlative emotion)'],
+        ['いかに〜か', 'いかに難しいかわかる', 'ika ni…ka wakaru', 'one can understand how difficult it is'],
+      ]
+    },
+    {
+      tab: 'Adv. Conditionals', icon: '⚡', title: 'Advanced Conditionals & Presuppositions',
+      desc: 'N1-level conditional patterns that carry strong presupposition and nuance.',
+      tip: '〜いかんでは and 〜いかんによっては are formal and often appear in policy/news language.',
+      rows: [
+        ['〜いかんによっては', '結果いかんによっては辞職する', '…ika n ni yotte wa', 'depending on the result, may resign'],
+        ['〜いかんにかかわらず', '結果いかんにかかわらず責任をとる', '…ika n ni kakawarazu', 'regardless of the result, will take responsibility'],
+        ['〜ものとする', '本規則は4月1日より適用するものとする', '…mono to suru', 'this rule shall apply from April 1st (legal/formal)'],
+        ['〜ものとみなす', '承諾したものとみなす', '…mono to minasu', 'shall be deemed to have consented'],
+        ['〜ないものでもない', '不可能ではないものでもない', '…nai mono demo nai', 'it\'s not completely impossible'],
+        ['〜にしては', '初めてにしてはうまい', '…ni shite wa', 'good for a first attempt'],
+        ['〜に至っては', '部長に至っては何も知らない', '…ni itte wa', 'as for the manager, he knows nothing at all'],
+      ]
+    },
+  ]
+};
+
+const GRAMMAR_LEVEL_META = {
+  N5: { color: 'var(--n5)', label: '🥋 GENIN — Complete Beginner' },
+  N4: { color: 'var(--n4)', label: '⚔️ CHUNIN — Elementary' },
+  N3: { color: 'var(--n3)', label: '🗡️ JONIN — Intermediate' },
+  N2: { color: 'var(--n2)', label: '🔥 KAGE — Upper Intermediate' },
+  N1: { color: 'var(--n1)', label: '🌟 KAGE — Near Native' },
+};
+
+let _grammarLevel = 'N5';
+let _grammarCatIdx = 0;
+
+function openGrammar() {
+  _grammarLevel = currentLevel || 'N5';
+  _grammarCatIdx = 0;
+  renderGrammarSheet();
+  document.getElementById('grammarOverlay').classList.add('open');
+  document.getElementById('grammarOverlay').scrollTop = 0;
+}
+
+function closeGrammar() {
+  document.getElementById('grammarOverlay').classList.remove('open');
+}
+
+function renderGrammarSheet() {
+  const lvl = _grammarLevel;
+  const meta = GRAMMAR_LEVEL_META[lvl];
+  const cats = GRAMMAR[lvl];
+
+  // Update header
+  document.getElementById('gsTitle').textContent = lvl + ' Grammar Cheatsheet';
+  document.getElementById('gsBadge').textContent = lvl;
+  document.getElementById('gsBadge').style.color = meta.color;
+  document.getElementById('gsHeader_sub') && (document.getElementById('gsHeader_sub').textContent = meta.label);
+
+  // Build tabs
+  const tabsEl = document.getElementById('gsTabs');
+  tabsEl.innerHTML = cats.map((c, i) =>
+    `<button class="gs-tab${i === _grammarCatIdx ? ' active' : ''}" onclick="switchGrammarCat(${i})">${c.icon} ${c.tab}</button>`
+  ).join('');
+
+  // Build body
+  const bodyEl = document.getElementById('gsBody');
+  bodyEl.innerHTML = cats.map((c, i) => `
+    <div class="gs-category${i === _grammarCatIdx ? ' active' : ''}" id="gscat-${i}">
+      <div class="gs-cat-intro">
+        <div class="gs-cat-intro-icon">${c.icon}</div>
+        <div>
+          <div class="gs-cat-intro-title">${c.title}</div>
+          <div class="gs-cat-intro-desc">${c.desc}</div>
+        </div>
+      </div>
+      <div class="gs-table-wrap">
+        <table class="gs-table">
+          <thead><tr>
+            <th>FORM</th><th>JAPANESE</th><th>ROMAJI</th><th>MEANING</th>
+          </tr></thead>
+          <tbody>
+            ${c.rows.map(r => `<tr>
+              <td>${r[0]}</td>
+              <td><span class="gs-td-jp">${r[1]}</span><span class="gs-td-rom">${r[2]}</span></td>
+              <td class="gs-td-meaning">${r[3]}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${c.tip ? `<div class="gs-tip"><span class="gs-tip-icon">💡</span><div class="gs-tip-text"><strong>Sensei's Tip:</strong> ${c.tip}</div></div>` : ''}
+    </div>
+  `).join('');
+}
+
+function switchGrammarCat(idx) {
+  _grammarCatIdx = idx;
+  // Update tabs
+  document.querySelectorAll('.gs-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  // Update categories
+  document.querySelectorAll('.gs-category').forEach((c, i) => c.classList.toggle('active', i === idx));
+  // Scroll tab into view
+  document.querySelectorAll('.gs-tab')[idx]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+}
+
+// ─────────────────────────────────────────────
+// PAYMENT MODAL
+// ─────────────────────────────────────────────
+function openPayModal() {
+  document.getElementById('payModalOverlay').classList.add('open');
+}
+function closePayModal() {
+  document.getElementById('payModalOverlay').classList.remove('open');
+}
+
+// ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
 initDarkMode();
@@ -5755,7 +6541,31 @@ setTimeout(initOnboarding, 400);
   </div>
 </div>
 
-<!-- Custom back confirm (replaces browser confirm() which fails on mobile) -->
+<!-- ── GRAMMAR CHEATSHEET OVERLAY ── -->
+<div class="grammar-overlay" id="grammarOverlay" onclick="if(event.target===this)closeGrammar()">
+<div class="grammar-sheet" id="grammarSheet">
+
+  <!-- Header (updated dynamically) -->
+  <div class="gs-header">
+    <div class="gs-header-icon">🥋</div>
+    <div class="gs-header-text">
+      <div class="gs-header-title" id="gsTitle">N5 Grammar Cheatsheet</div>
+      <div class="gs-header-sub" id="gsHeader_sub">Complete reference — tap a category to browse</div>
+    </div>
+    <div class="gs-header-badge" id="gsBadge" style="color:var(--n5)">N5</div>
+    <button class="gs-close" onclick="closeGrammar()">✕ Close</button>
+  </div>
+
+  <!-- Tab nav (filled by JS) -->
+  <div class="gs-tabs" id="gsTabs"></div>
+
+  <!-- Body (filled by JS) -->
+  <div class="gs-body" id="gsBody"></div>
+
+</div>
+</div>
+
+<!-- ── BACK CONFIRM ── -->
 <div id="backConfirmOverlay" onclick="if(event.target===this)closeBackConfirm()" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(26,26,46,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px">
   <div style="background:white;border-radius:20px;padding:28px 24px;max-width:300px;width:100%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.3)">
     <div style="font-size:2.2rem;margin-bottom:8px">🏠</div>
