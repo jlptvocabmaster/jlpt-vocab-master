@@ -231,7 +231,14 @@ body::after { content: ''; position: fixed; top: 30%; left: 50%; transform: tran
 }
 .pay-divider-text { font-size: 0.68rem; color: var(--stone); font-weight: 700; letter-spacing: 1px; }
 
-/* ── BACK BUTTON in game header ── */
+/* ── ORIGIN BUTTON PULSE (first 3 questions) ── */
+@keyframes originPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.4); }
+  50%      { box-shadow: 0 0 0 6px rgba(192,57,43,0); }
+}
+.origin-btn.pulse-hint { animation: senseiWiggle 2.5s ease-in-out infinite, originPulse 1.6s ease-in-out infinite; }
+
+
 .gt-back {
   background: none; border: 1.5px solid var(--border); border-radius: 10px;
   padding: 6px 12px; font-size: 0.78rem; font-weight: 700; color: var(--stone);
@@ -2335,10 +2342,15 @@ body.hide-romaji .furigana-display { opacity: 0; pointer-events: none; height: 0
       <div class="gt-level" id="gtLevel"></div>
       <div class="gt-rank" id="gtRank"></div>
     </div>
-    <div class="gt-right">
+    <div class="gt-right" style="display:flex;align-items:center;gap:8px">
+      <button class="gt-back" onclick="pauseGame()" id="pauseBtn" title="Pause (P)" style="font-size:0.72rem;padding:5px 10px">⏸ Pause</button>
       <div class="gt-score">⭐ <span id="gtScore">0</span></div>
       <div class="gt-lives" id="gtLives"></div>
     </div>
+  </div>
+  <!-- Mode badge pill -->
+  <div style="text-align:center;margin:4px 0 0">
+    <span id="gameModePill" style="display:inline-flex;align-items:center;gap:5px;background:var(--white);border:1.5px solid var(--border);border-radius:99px;padding:3px 12px;font-size:0.65rem;font-weight:700;color:var(--stone)">🎯 Meaning Mode</span>
   </div>
   <div class="prog-bar-wrap"><div class="prog-bar-fill" id="progFill" style="width:0%"></div></div>
   <div class="q-counter" id="qCounter">Question <span>1</span> of <span>15</span> · <span>15</span> total words in this level</div>
@@ -2368,6 +2380,7 @@ body.hide-romaji .furigana-display { opacity: 0; pointer-events: none; height: 0
       <span class="kb-hint"><span class="kb-key">1</span>–<span class="kb-key">4</span> select</span>
       <span class="kb-hint"><span class="kb-key">↵</span> next</span>
       <span class="kb-hint"><span class="kb-key">O</span> origin</span>
+      <span class="kb-hint"><span class="kb-key">P</span> pause</span>
     </div>
     <div class="sensei-quote" id="senseiQuote">
       <div class="sensei-text" id="senseiText"></div>
@@ -2375,6 +2388,21 @@ body.hide-romaji .furigana-display { opacity: 0; pointer-events: none; height: 0
     </div>
     <div class="feedback" id="feedback"></div>
     <button class="next-btn" id="nextBtn" onclick="nextQ()">Next →</button>
+  </div>
+</div>
+
+<!-- ── PAUSE OVERLAY ── -->
+<div id="pauseOverlay" onclick="if(event.target===this)resumeGame()" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(26,26,46,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--paper);border-radius:24px;padding:32px 28px;max-width:320px;width:100%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.35)">
+    <div style="font-size:3rem;margin-bottom:10px">⏸️</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--ink);margin-bottom:6px">Game Paused</div>
+    <div style="font-size:0.78rem;color:var(--stone);margin-bottom:6px">Your progress is saved automatically.</div>
+    <div id="pauseModeBadge" style="display:inline-block;background:var(--crimson-lt);color:var(--crimson);border-radius:99px;padding:3px 14px;font-size:0.7rem;font-weight:700;margin-bottom:22px">🎯 Meaning Mode</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button onclick="resumeGame()" style="padding:14px;background:var(--crimson);border:none;border-radius:14px;font-family:'DM Serif Display',serif;font-size:1rem;cursor:pointer;color:white;box-shadow:0 4px 16px rgba(192,57,43,.3)">▶ Resume</button>
+      <button onclick="resumeGame();openOrigin()" id="pauseOriginBtn" style="padding:12px;background:var(--white);border:1.5px solid var(--border);border-radius:14px;font-family:'DM Serif Display',serif;font-size:0.9rem;cursor:pointer;color:var(--ink)">⛩️ Origin Story</button>
+      <button onclick="closePauseAndGoHome()" style="padding:12px;background:#f1f5f9;border:none;border-radius:14px;font-family:'DM Serif Display',serif;font-size:0.9rem;cursor:pointer;color:var(--stone)">🏠 Quit to Home</button>
+    </div>
   </div>
 </div>
 
@@ -2405,6 +2433,7 @@ body.hide-romaji .furigana-display { opacity: 0; pointer-events: none; height: 0
     <div class="score-actions" id="scoreActions" style="flex-wrap:wrap;gap:10px">
       <button class="sc-btn sc-home" onclick="goHome()">🏠 Home</button>
       <button class="sc-btn sc-share" onclick="shareScore()">📤 Share Score</button>
+      <button class="sc-btn" id="retryMissedBtn" onclick="retryMissedWords()" style="display:none;background:linear-gradient(135deg,#e67e22,#d35400);color:white;border-color:transparent">🔁 Retry Missed Words</button>
       <button class="sc-btn sc-again" onclick="startGame()" style="flex-basis:100%">もう一度 →</button>
     </div>
   </div>
@@ -3194,11 +3223,6 @@ const vocab = {
       origin:{ pictograph:'忖 shows the heart (心) + measuring (寸) — measuring with your heart, intuiting what someone feels. 度 shows a hand measuring under a roof — calculating dimensions. Together: carefully measuring what someone feels without them saying it!', radicals:[{k:'心',m:'heart'},{k:'寸',m:'measure'},{k:'度',m:'degree'}], literal:'Heart-measuring + calculating = figuring out what your boss wants before they say it! 🎯', hook:'SON-TAKU: "SON, TAKE a guess at what I want!" — reading between the lines in Japanese workplace culture! そんたく!', related:['空気を読む','忖度する','配慮'] }},
     { k:'変遷', f:'へんせん', r:'hensen', m:'transition / change over time', pos:'noun',
       origin:{ pictograph:'変 shows a thread being transformed (変化) — something changing form. 遷 shows movement (辶) + a high place (西+大) — moving from one high point to another over time. The journey of transformation!', radicals:[{k:'辶',m:'movement'},{k:'変',m:'change'}], literal:'Change + Moving from peak to peak over time = historical transition 📜', hook:'HEN-SEN: "HEN" like CHANGE (変) and "SEN" like THOUSAND years — change over a thousand years! へんせん!', related:['変化','推移','移行'] }},
-    { k:'逡巡', f:'しゅんじゅん', r:'shunjun', m:'hesitation / wavering', pos:'noun' },
-    { k:'矛盾', f:'むじゅん', r:'mujun', m:'contradiction', pos:'noun' },
-    { k:'幽玄', f:'ゆうげん', r:'yuugen', m:'subtle profound beauty', pos:'adj (na)' },
-    { k:'忖度', f:'そんたく', r:'sontaku', m:'reading the air', pos:'noun' },
-    { k:'変遷', f:'へんせん', r:'hensen', m:'transition / historical change', pos:'noun' },
     { k:'刹那', f:'せつな', r:'setsuna', m:'a moment / instant', pos:'noun' },
     { k:'葛藤', f:'かっとう', r:'kattou', m:'inner conflict', pos:'noun' },
     { k:'蹉跎', f:'さた', r:'sata', m:'wasted time / stagnation', pos:'noun' },
@@ -3522,12 +3546,6 @@ const extraN4more = [
   { k:'部下', f:'ぶか', r:'buka', m:'subordinate', pos:'noun' },
   { k:'締め切り', f:'しめきり', r:'shimekiri', m:'deadline', pos:'noun' },
   { k:'予定', f:'よてい', r:'yotei', m:'plan / schedule', pos:'noun' },
-  { k:'集まる', f:'あつまる', r:'atsumaru', m:'to gather', pos:'verb (u)' },
-  { k:'集める', f:'あつめる', r:'atsumeru', m:'to collect', pos:'verb (ru)' },
-  { k:'調べる', f:'しらべる', r:'shiraberu', m:'to investigate', pos:'verb (ru)' },
-  { k:'比べる', f:'くらべる', r:'kuraberu', m:'to compare', pos:'verb (ru)' },
-  { k:'伝える', f:'つたえる', r:'tsutaeru', m:'to convey', pos:'verb (ru)' },
-  { k:'尋ねる', f:'たずねる', r:'tazuneru', m:'to ask / visit', pos:'verb (ru)' },
   { k:'迷う', f:'まよう', r:'mayou', m:'to be lost / hesitate', pos:'verb (u)' },
   { k:'夢見る', f:'ゆめみる', r:'yumemiru', m:'to dream', pos:'verb (ru)' },
 ];
@@ -3546,16 +3564,14 @@ const extraN3more = [
   { k:'冒険', f:'ぼうけん', r:'bouken', m:'adventure', pos:'noun' },
   { k:'挑戦', f:'ちょうせん', r:'chousen', m:'challenge', pos:'noun' },
   { k:'成長', f:'せいちょう', r:'seichou', m:'growth', pos:'noun' },
-  { k:'目的', f:'もくてき', r:'mokuteki', m:'purpose / goal', pos:'noun' },
   { k:'手段', f:'しゅだん', r:'shudan', m:'means / method', pos:'noun' },
   { k:'証明', f:'しょうめい', r:'shoumei', m:'proof / certificate', pos:'noun' },
   { k:'印象', f:'いんしょう', r:'inshou', m:'impression', pos:'noun' },
   { k:'性格', f:'せいかく', r:'seikaku', m:'personality / character', pos:'noun' },
   { k:'態度', f:'たいど', r:'taido', m:'attitude', pos:'noun' },
   { k:'判断', f:'はんだん', r:'handan', m:'judgement', pos:'noun' },
-  { k:'能力', f:'のうりょく', r:'nouryoku', m:'ability', pos:'noun' },
   { k:'個性', f:'こせい', r:'kosei', m:'individuality', pos:'noun' },
-  { k:'集中力', f:'しゅうちゅうりょく', r:'shuuchuulyoku', m:'concentration power', pos:'noun' },
+  { k:'集中力', f:'しゅうちゅうりょく', r:'shuuchuuryoku', m:'concentration power', pos:'noun' },
   { k:'体験', f:'たいけん', r:'taiken', m:'experience / encounter', pos:'noun' },
   { k:'自覚', f:'じかく', r:'jikaku', m:'self-awareness', pos:'noun' },
   { k:'工夫', f:'くふう', r:'kufuu', m:'device / clever idea', pos:'noun' },
@@ -3582,7 +3598,6 @@ const extraN3more = [
   { k:'積み重ねる', f:'つみかさねる', r:'tsumikasaneru', m:'to accumulate', pos:'verb (ru)' },
   { k:'広がる', f:'ひろがる', r:'hirogaru', m:'to spread / expand', pos:'verb (u)' },
   { k:'深まる', f:'ふかまる', r:'fukamaru', m:'to deepen', pos:'verb (u)' },
-  { k:'真剣', f:'しんけん', r:'shinken', m:'serious / earnest', pos:'adj (na)' },
   { k:'素直', f:'すなお', r:'sunao', m:'obedient / honest', pos:'adj (na)' },
   { k:'柔軟', f:'じゅうなん', r:'juunan', m:'flexible', pos:'adj (na)' },
   { k:'慎重', f:'しんちょう', r:'shinchou', m:'careful / cautious', pos:'adj (na)' },
@@ -3630,7 +3645,7 @@ const extraN2more2 = [
   { k:'措置', f:'そち', r:'sochi', m:'measure / step (action)', pos:'noun' },
   { k:'反映', f:'はんえい', r:'hanei', m:'reflection / feedback', pos:'noun' },
   { k:'是正', f:'ぜせい', r:'zesei', m:'correction / rectification', pos:'noun' },
-  { k:'具現化', f:'ぐげんか', r:'gugenko', m:'realisation / embodiment', pos:'noun' },
+  { k:'具現化', f:'ぐげんか', r:'gugenka', m:'realisation / embodiment', pos:'noun' },
   { k:'充当', f:'じゅうとう', r:'juutou', m:'allocation / appropriation', pos:'noun' },
 ];
 extraN2more2.forEach(w => vocab.N2.push(w));
@@ -3804,8 +3819,51 @@ function closeBackConfirm() {
 }
 
 // ─────────────────────────────────────────────
-// GAME FLOW
+// PAUSE / RESUME
 // ─────────────────────────────────────────────
+let _isPaused = false;
+const MODE_LABELS = {
+  meaning: '🎯 Meaning Mode',
+  reading: '📖 Reading Mode',
+  fill:    '✏️ Type-It Mode',
+  flash:   '🃏 Flashcard Mode',
+  pastpaper: '📜 Past Paper Mode'
+};
+
+function updateGameModePill() {
+  const label = MODE_LABELS[currentMode] || '🎯 Meaning Mode';
+  const pill = document.getElementById('gameModePill');
+  if (pill) pill.textContent = label;
+  const pauseBadge = document.getElementById('pauseModeBadge');
+  if (pauseBadge) pauseBadge.textContent = label;
+}
+
+function pauseGame() {
+  if (_isPaused) return;
+  _isPaused = true;
+  updateGameModePill();
+  const pauseBadge = document.getElementById('pauseModeBadge');
+  if (pauseBadge) pauseBadge.textContent = MODE_LABELS[currentMode] || '🎯 Meaning Mode';
+  // Hide origin button if no origin data
+  const pauseOriginBtn = document.getElementById('pauseOriginBtn');
+  if (pauseOriginBtn) pauseOriginBtn.style.display = (currentEntry && currentEntry.origin) ? '' : 'none';
+  document.getElementById('pauseOverlay').style.display = 'flex';
+  // Save session state on pause
+  if (pool && pool.length > 0) saveInProgressSession(currentLevel, currentMode, pool, qIdx, score, lives, results);
+}
+
+function resumeGame() {
+  _isPaused = false;
+  document.getElementById('pauseOverlay').style.display = 'none';
+}
+
+function closePauseAndGoHome() {
+  _isPaused = false;
+  document.getElementById('pauseOverlay').style.display = 'none';
+  goHome();
+}
+
+
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -3848,6 +3906,7 @@ function startGame() {
   document.getElementById('gtRank').textContent = lvlRanks[lv];
 
   showScreen('gameScreen');
+  updateGameModePill();
   updateXpHUD();
   updateQCounter();
   renderQ();
@@ -3908,12 +3967,13 @@ function renderQ() {
 }
 
 function wordHeader(entry) {
+  const showPulse = qIdx < 3 && !localStorage.getItem('jlpt_origin_clicked');
   return `
     <div class="word-header">
       <div class="kanji-display">${entry.k}</div>
       <div class="furigana-display">${entry.f}</div>
       <div class="romaji-display">${entry.r} · ${entry.pos}</div>
-      <button class="origin-btn" onclick="openOrigin()" title="Kanji Origin">⛩️</button>
+      <button class="origin-btn${showPulse ? ' pulse-hint' : ''}" onclick="localStorage.setItem('jlpt_origin_clicked','1');this.classList.remove('pulse-hint');openOrigin()" title="Kanji Origin Story">⛩️ Origin</button>
     </div>`;
 }
 
@@ -4031,6 +4091,15 @@ function checkFill() {
 
 function renderFlash(entry) {
   document.getElementById('qTag').textContent = '🃏 Tap the card to flip';
+  // Update keyboard hints for flash mode
+  const hints = document.getElementById('kbHints');
+  if (hints) hints.innerHTML = `
+    <span class="kb-hint"><span class="kb-key">F</span> flip</span>
+    <span class="kb-hint"><span class="kb-key">Y</span> got it</span>
+    <span class="kb-hint"><span class="kb-key">N</span> missed</span>
+    <span class="kb-hint"><span class="kb-key">O</span> origin</span>
+    <span class="kb-hint"><span class="kb-key">P</span> pause</span>
+  `;
   document.getElementById('answerArea').innerHTML = `
     <div class="flashcard-scene" onclick="flipCard()">
       <div class="flashcard" id="flashCard">
@@ -4100,6 +4169,18 @@ function openOrigin() {
 
   document.getElementById('opWord').textContent = entry.k;
   document.getElementById('opReading').textContent = `${entry.f} (${entry.r}) · ${entry.pos}`;
+
+  if (!o) {
+    // No origin data — show a friendly placeholder
+    document.getElementById('opPictograph').innerHTML = `<em style="color:var(--stone)">Origin story coming soon for ${entry.k}! 🛠️<br><br>This word is part of our growing kanji origin database. In the meantime, try looking up the individual radicals of "${entry.k}" to build your own memory hook.</em>`;
+    document.getElementById('opLiteral').innerHTML = `<em style="color:var(--stone)">—</em>`;
+    document.getElementById('opHook').innerHTML = `<em style="color:var(--stone)">Tip: Break <strong>${entry.k}</strong> into its components and create a silly story linking them to "<strong>${entry.m}</strong>". Your own hook is the most powerful! 🧠</em>`;
+    document.getElementById('opRadicals').innerHTML = '';
+    document.getElementById('opRelated').innerHTML = '';
+    document.getElementById('originOverlay').classList.add('show');
+    return;
+  }
+
   document.getElementById('opPictograph').innerHTML = o.pictograph;
   document.getElementById('opLiteral').innerHTML = o.literal;
   document.getElementById('opHook').innerHTML = o.hook;
@@ -4149,6 +4230,22 @@ function handleEmailSignup() {
 function closeEmail() {
   localStorage.setItem('jlpt_email_shown', 'true');
   document.getElementById('emailModal').classList.remove('show');
+}
+
+// ─────────────────────────────────────────────
+// RETRY MISSED WORDS
+// ─────────────────────────────────────────────
+function retryMissedWords() {
+  const missed = pool.filter((_, i) => !results[i]);
+  if (!missed.length) { alert('No missed words to retry — perfect score! 🏆'); return; }
+  pool = shuffle(missed);
+  qIdx = 0; score = 0; lives = 3; results = []; answered = false; _sessionXP = 0; _streakCount = 0;
+  document.getElementById('progFill').style.background = `linear-gradient(90deg, ${lvlColor[currentLevel]}, #f39c12)`;
+  showScreen('gameScreen');
+  updateGameModePill();
+  updateXpHUD();
+  updateQCounter();
+  renderQ();
 }
 
 // ─────────────────────────────────────────────
@@ -4218,6 +4315,14 @@ function endGame() {
       // Show certificate after brief delay
       setTimeout(() => showCertificate(currentLevel), 1200);
     }
+  }
+
+  // Show retry missed words button if there are misses
+  const retryBtn = document.getElementById('retryMissedBtn');
+  if (retryBtn) {
+    const missCount = results.filter(r => !r).length;
+    retryBtn.style.display = missCount > 0 ? '' : 'none';
+    if (missCount > 0) retryBtn.textContent = `🔁 Retry ${missCount} Missed Word${missCount !== 1 ? 's' : ''}`;
   }
 }
 
@@ -4449,7 +4554,7 @@ function saveProgress(p) {
   localStorage.setItem('jlpt_progress', JSON.stringify(p));
 }
 
-function recordSession(lv, wordsStudied, sessionResults) {
+function _coreRecordSession(lv, wordsStudied, sessionResults) {
   const p = getProgress();
   const today = new Date().toISOString().slice(0,10);
   const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
@@ -4479,9 +4584,13 @@ function recordSession(lv, wordsStudied, sessionResults) {
   return earned;
 }
 
+function recordSession(lv, wordsStudied, sessionResults) {
+  return _coreRecordSession(lv, wordsStudied, sessionResults);
+}
+
 function saveInProgressSession(lv, mode, poolWords, qIdx, score, lives, results) {
   const p = getProgress();
-  p.savedSession = { lv, mode, poolKeys: poolWords.map(w=>w.k), qIdx, score, lives, results };
+  p.savedSession = { lv, mode, poolKeys: poolWords.map(w=>w.k), qIdx, score, lives, results, streakCount: _streakCount };
   saveProgress(p);
 }
 
@@ -4533,6 +4642,7 @@ function continueSession() {
   score = s.score;
   lives = s.lives;
   results = s.results;
+  _streakCount = s.streakCount || 0;
   answered = false;
 
   // Rebuild pool from keys
@@ -4547,6 +4657,7 @@ function continueSession() {
   document.getElementById('gtRank').textContent = lvlRanks[currentLevel];
 
   showScreen('gameScreen');
+  updateGameModePill();
   renderQ();
 }
 
@@ -4602,6 +4713,7 @@ function shareApp() {
 }
 
 function shareScore() {
+  if (!results || results.length === 0) { alert('Finish a quiz first to share your score!'); return; }
   const correct = results.filter(Boolean).length;
   const total = results.length;
   const pct = Math.round((correct / total) * 100);
@@ -4674,10 +4786,10 @@ const levelStories = {
   },
   N2: {
     title:'批判と根拠', title_en:'Criticism and Evidence',
-    story_jp:`<ruby>会議<rt>かいぎ</rt></ruby>で<ruby>田村<rt>たむら</rt></ruby>さんは<ruby>主張<rt>しゅちょう</rt></ruby>しました。「この<ruby>計画<rt>けいかく</rt></ruby>は<ruby>曖昧<rt>あいまい</rt></ruby>です。<ruby>根拠<rt>こんきょ</rt></ruby>が<ruby>必要<rt>ひつよう</rt></ruby>です。」<ruby>批判<rt>ひはん</rt></ruby>を<ruby>受けた<rt>うけた</rt></ruby><ruby>上司<rt>じょうし</rt></ruby>は<ruby>意識<rt>いしき</rt></ruby>を<ruby>変えました<rt>かえました</rt></ruby>。<ruby>傍向<rt>けいこう</rt></ruby>として<ruby>妖協<rt>だきょう</rt></ruby>が<ruby>多い<rt>おおい</rt></ruby>職場ですが、<ruby>田村<rt>たむら</rt></ruby>さんは<ruby>克服<rt>こくふく</rt></ruby>しました。`,
+    story_jp:`<ruby>会議<rt>かいぎ</rt></ruby>で<ruby>田村<rt>たむら</rt></ruby>さんは<ruby>主張<rt>しゅちょう</rt></ruby>しました。「この<ruby>計画<rt>けいかく</rt></ruby>は<ruby>曖昧<rt>あいまい</rt></ruby>です。<ruby>根拠<rt>こんきょ</rt></ruby>が<ruby>必要<rt>ひつよう</rt></ruby>です。」<ruby>批判<rt>ひはん</rt></ruby>を<ruby>受けた<rt>うけた</rt></ruby><ruby>上司<rt>じょうし</rt></ruby>は<ruby>意識<rt>いしき</rt></ruby>を<ruby>変えました<rt>かえました</rt></ruby>。<ruby>傾向<rt>けいこう</rt></ruby>として<ruby>妥協<rt>だきょう</rt></ruby>が<ruby>多い<rt>おおい</rt></ruby>職場ですが、<ruby>田村<rt>たむら</rt></ruby>さんは<ruby>克服<rt>こくふく</rt></ruby>しました。`,
     story_en:`At a meeting, Tamura made an assertion. "This plan is vague — we need evidence." The boss who received the criticism changed his awareness. Compromise is a common tendency at work, but Tamura overcame it.`,
     moral:`An assertion backed by solid evidence isn't aggression — it's the highest form of respect for your team.`,
-    words:[{k:'主張',f:'しゅちょう',m:'assertion'},{k:'曖昧',f:'あいまい',m:'vague'},{k:'根拠',f:'こんきょ',m:'evidence'},{k:'批判',f:'ひはん',m:'criticism'},{k:'意識',f:'いしき',m:'awareness'},{k:'傍向',f:'けいこう',m:'tendency'},{k:'妖協',f:'だきょう',m:'compromise'},{k:'克服',f:'こくふく',m:'overcome'}]
+    words:[{k:'主張',f:'しゅちょう',m:'assertion'},{k:'曖昧',f:'あいまい',m:'vague'},{k:'根拠',f:'こんきょ',m:'evidence'},{k:'批判',f:'ひはん',m:'criticism'},{k:'意識',f:'いしき',m:'awareness'},{k:'傾向',f:'けいこう',m:'tendency'},{k:'妥協',f:'だきょう',m:'compromise'},{k:'克服',f:'こくふく',m:'overcome'}]
   },
   N1: {
     title:'剎那の葛藤', title_en:'The Inner Conflict of a Moment',
@@ -5052,7 +5164,7 @@ function startDailyWordPractice() {
   currentMode = 'meaning';
 
   // Show a toast
-  showXpPop('📅');
+  showXpPop(10);
   setTimeout(() => startGame(), 300);
 }
 
@@ -5073,22 +5185,54 @@ function saveMistake(q) {
   } catch(e) {}
 }
 
-function openMistakeBank() {
+let _mistakeFilter = 'all';
+
+function openMistakeBank(filter) {
+  if (filter !== undefined) _mistakeFilter = filter;
   const p = getProgress();
-  const mistakes = p.mistakes || [];
+  const allMistakes = p.mistakes || [];
   const overlay = document.getElementById('mistakeBankOverlay');
   const body    = document.getElementById('mistakeBankBody');
   const letters = ['①','②','③','④'];
   const typeIcons = { vocab:'📘', grammar:'📗', reading:'📙' };
+  const lvColors = { N5:'#27ae60', N4:'#2980b9', N3:'#8e44ad', N2:'#e67e22', N1:'#c0392b' };
 
-  if (!mistakes.length) {
-    body.innerHTML = '<div style="text-align:center;padding:30px 0;color:var(--stone)"><div style="font-size:2.5rem;margin-bottom:10px">🏆</div><div>No mistakes yet! Keep studying.</div></div>';
+  // Count per level for filter pills
+  const counts = { all: allMistakes.length };
+  ['N5','N4','N3','N2','N1'].forEach(lv => {
+    counts[lv] = allMistakes.filter(m => m.lv === lv).length;
+  });
+
+  // Filter pills HTML
+  const pills = ['all','N5','N4','N3','N2','N1'].map(lv => {
+    const cnt = counts[lv] || 0;
+    const color = lvColors[lv] || 'var(--stone)';
+    const active = _mistakeFilter === lv;
+    const label = lv === 'all' ? `All (${counts.all})` : `${lv} (${cnt})`;
+    return `<button onclick="openMistakeBank('${lv}')" style="padding:5px 12px;border-radius:99px;border:1.5px solid ${active ? color : 'var(--border)'};background:${active ? color : 'transparent'};color:${active ? 'white' : 'var(--stone)'};font-size:0.68rem;font-weight:700;cursor:pointer;transition:all .15s">${label}</button>`;
+  }).join('');
+
+  const filterBar = `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">${pills}</div>`;
+
+  const filtered = _mistakeFilter === 'all' ? allMistakes : allMistakes.filter(m => m.lv === _mistakeFilter);
+
+  // Clear all button (with confirm)
+  const clearAllBtn = allMistakes.length > 0
+    ? `<button onclick="clearAllMistakes()" style="float:right;background:none;border:none;color:var(--stone);cursor:pointer;font-size:0.7rem;text-decoration:underline;margin-bottom:10px">🗑 Clear all</button>`
+    : '';
+
+  if (!filtered.length) {
+    body.innerHTML = filterBar + clearAllBtn + '<div style="text-align:center;padding:30px 0;color:var(--stone)"><div style="font-size:2.5rem;margin-bottom:10px">' + (allMistakes.length ? '🔍' : '🏆') + '</div><div>' + (allMistakes.length ? `No ${_mistakeFilter} mistakes — try another filter.` : 'No mistakes yet! Keep studying.') + '</div></div>';
   } else {
-    body.innerHTML = mistakes.map((m,i) => `
-      <div style="border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:white">
+    // Use original indices (in allMistakes) so splice works correctly
+    const cards = filtered.map(m => {
+      const origIdx = allMistakes.indexOf(m);
+      const lvColor = lvColors[m.lv] || 'var(--crimson)';
+      return `
+      <div style="border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:var(--white)">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <span style="font-size:0.65rem;background:var(--crimson-lt);color:var(--crimson);border-radius:6px;padding:2px 8px;font-weight:700;letter-spacing:1px">${(typeIcons[m.type]||'')+' '+(m.lv||'')}</span>
-          <button onclick="clearMistake(${i})" style="margin-left:auto;background:none;border:none;color:var(--stone);cursor:pointer;font-size:0.75rem">✕ clear</button>
+          <span style="font-size:0.65rem;background:${lvColor}22;color:${lvColor};border-radius:6px;padding:2px 8px;font-weight:700;letter-spacing:1px">${(typeIcons[m.type]||'📘')+' '+(m.lv||'')}</span>
+          <button onclick="confirmClearMistake(${origIdx})" style="margin-left:auto;background:none;border:none;color:var(--stone);cursor:pointer;font-size:0.75rem">✕ clear</button>
         </div>
         <div style="font-family:'Noto Serif JP',serif;font-size:0.88rem;color:var(--ink);line-height:1.7;margin-bottom:8px">${m.q.replace(/\n/g,'<br>')}</div>
         <div style="font-size:0.75rem;color:#27ae60;font-weight:700">✓ Correct: ${letters[m.ans]} ${m.opts[m.ans]}</div>
@@ -5096,10 +5240,25 @@ function openMistakeBank() {
           <summary style="font-size:0.7rem;color:var(--stone);cursor:pointer">Why?</summary>
           <div style="font-size:0.78rem;color:var(--ink);margin-top:5px;line-height:1.6">${m.exp}</div>
         </details>
-      </div>`).join('');
+      </div>`;
+    }).join('');
+    body.innerHTML = filterBar + clearAllBtn + `<div style="font-size:0.7rem;color:var(--stone);margin-bottom:8px">${filtered.length} mistake${filtered.length !== 1 ? 's' : ''} ${_mistakeFilter !== 'all' ? 'in ' + _mistakeFilter : 'total'}</div>` + cards;
   }
 
   overlay.style.display = 'flex';
+}
+
+function confirmClearMistake(idx) {
+  if (confirm('Remove this mistake from your bank?')) clearMistake(idx);
+}
+
+function clearAllMistakes() {
+  if (!confirm('Clear ALL mistakes from your bank? This cannot be undone.')) return;
+  const p = getProgress();
+  p.mistakes = [];
+  saveProgress(p);
+  _mistakeFilter = 'all';
+  openMistakeBank();
 }
 
 function clearMistake(idx) {
@@ -5236,7 +5395,6 @@ function buildHeatmap(p) {
 }
 
 // Hook recordSession to also track sessionHistory
-const _origRecordSession = recordSession;
 function recordSession(lv, wordsStudied, sessionResults) {
   // Track daily session count for heatmap
   const p = getProgress();
@@ -5245,8 +5403,8 @@ function recordSession(lv, wordsStudied, sessionResults) {
   p.sessionHistory[today] = (p.sessionHistory[today] || 0) + 1;
   saveProgress(p);
 
-  // Check achievements before calling original (so XP is updated after)
-  const result = _origRecordSession(lv, wordsStudied, sessionResults);
+  // Call core implementation
+  const result = _coreRecordSession(lv, wordsStudied, sessionResults);
 
   // Check achievements after session
   setTimeout(() => checkAchievements(), 1200);
@@ -5417,6 +5575,21 @@ function initKeyboardShortcuts() {
       const card = document.getElementById('flashCard');
       if (card) flipCard();
     }
+
+    // Y/N: flashcard self-grade (after card is flipped)
+    if (currentMode === 'flash' && !answered) {
+      const fcBtns = document.getElementById('fcBtns');
+      if (fcBtns && fcBtns.style.display !== 'none') {
+        if (e.key.toLowerCase() === 'y') flashAnswer(true);
+        if (e.key.toLowerCase() === 'n') flashAnswer(false);
+      }
+    }
+
+    // P: pause game
+    if (e.key.toLowerCase() === 'p') {
+      if (_isPaused) resumeGame();
+      else pauseGame();
+    }
   });
 }
 
@@ -5568,7 +5741,7 @@ function startDailyChallenge() {
   qIdx = dc.answered || 0; score = dc.score || 0; lives = 99; results = []; answered = false; _sessionXP = 0;
   pool = getDailyChallengeWords();
   currentLevel = 'N5'; // mixed, but use N5 for XP
-  currentMode = 'meaning';
+  currentMode = 'meaning'; // Always locked to meaning mode for fairness
 
   // If partially done, fast-forward
   if (dc.answered > 0) {
@@ -5585,6 +5758,7 @@ function startDailyChallenge() {
   if (dcHeader) dcHeader.style.display = 'block';
 
   showScreen('gameScreen');
+  updateGameModePill();
   updateXpHUD();
   updateQCounter();
   renderQ();
